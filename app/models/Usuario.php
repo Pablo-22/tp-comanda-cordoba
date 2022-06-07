@@ -57,8 +57,6 @@ class Usuario
             FROM usuarios U
                 JOIN roles R ON R.id = U.idRol
             WHERE U.nombre = :nombreUsuario;
-
-            SELECT 2 AS Valor
         ");
         $consulta->bindValue(':nombreUsuario', $nombre, PDO::PARAM_STR);
         $consulta->execute();
