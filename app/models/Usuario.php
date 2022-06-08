@@ -64,22 +64,21 @@ class Usuario
         return $consulta->fetchObject('Usuario');
     }
 
-    public static function modificarUsuario($usuario)
+    public function modificarUsuario()
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
-            UPDATE usuarios 
+            UPDATE usuarios  U
+			JOIN roles R ON R.descripcion = :rol
             SET U.nombre = :usuario, 
                 U.clave = :clave,
-                R.id AS idRol
-            FROM usuarios U
-                JOIN roles R ON R.descripcion = :rol
-            WHERE id = :id
+                U.idRol = R.id
+            WHERE U.id = :id
         ");
-        $consulta->bindValue(':usuario', $usuario->usuario, PDO::PARAM_STR);
-        $consulta->bindValue(':clave', $usuario->clave, PDO::PARAM_STR);
-        $consulta->bindValue(':rol', $usuario->rol, PDO::PARAM_STR);
-        $consulta->bindValue(':id', $usuario->id, PDO::PARAM_INT);
+        $consulta->bindValue(':usuario', $this->nombre, PDO::PARAM_STR);
+        $consulta->bindValue(':clave', $this->clave, PDO::PARAM_STR);
+        $consulta->bindValue(':rol', $this->rol, PDO::PARAM_STR);
+        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
         $consulta->execute();
     }
 
