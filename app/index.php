@@ -35,9 +35,35 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{nombre}', \UsuarioController::class . ':TraerUno');
     $group->post('[/]', \UsuarioController::class . ':CargarUno');
-    //$group->post('/{nombre}', \UsuarioController::class . ':BorrarUno');
+    $group->put('[/]', \UsuarioController::class . ':ModificarUno');
     $group->delete('[/]', \UsuarioController::class . ':BorrarUno');
-  });
+});
+
+$app->group('/productos', function (RouteCollectorProxy $group) {
+    $group->get('[/]', \ProductoController::class . ':TraerTodos');
+    $group->get('/{nombre}', \ProductoController::class . ':TraerUno');
+    $group->post('[/]', \ProductoController::class . ':CargarUno');
+    $group->put('[/]', \ProductoController::class . ':ModificarUno');
+    $group->delete('[/]', \ProductoController::class . ':BorrarUno');
+});
+
+$app->group('/mesas', function (RouteCollectorProxy $group) {
+    $group->get('[/]', \MesaController::class . ':TraerTodos');
+    $group->get('/{nombre}', \MesaController::class . ':TraerUno');
+    $group->post('[/]', \MesaController::class . ':CargarUno');
+    $group->put('[/]', \MesaController::class . ':ModificarUno');
+    $group->delete('[/]', \MesaController::class . ':BorrarUno');
+});
+
+$app->group('/pedidos', function (RouteCollectorProxy $group) {
+    $group->get('[/]', \PedidoController::class . ':TraerTodos');
+    $group->get('/{nombre}', \PedidoController::class . ':TraerUno');
+    $group->post('[/]', \PedidoController::class . ':CargarUno');
+    $group->put('[/]', \PedidoController::class . ':ModificarUno');
+    $group->delete('[/]', \PedidoController::class . ':BorrarUno');
+});
+
+
 
 
 $app->get('[/]', function (Request $request, Response $response) {    
