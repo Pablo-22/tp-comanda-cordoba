@@ -6,24 +6,27 @@ class Pedido
     public $codigo;
     public $rutaImagen;
     public $codigoMesa;
+    public $nombreCliente;
+	public $pedido_producto;
 
     public function crearPedido()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
-            INSERT INTO pedidos (codigo, rutaImagen, idMesa) 
+            INSERT INTO pedidos (codigo, rutaImagen, idMesa, nombreCliente) 
             SELECT 
                 :codigoPedido AS codigo,
                 :rutaImagen AS rutaImagen,
-                M.id AS idMesa
+                M.id AS idMesa,
+                :nombreCliente AS nombreCliente
             FROM mesas M
             WHERE M.codigo = :codigoMesa
-            LIMIT 1
         ");
 
         $consulta->bindValue(':codigoPedido', $this->codigo, PDO::PARAM_STR);
-        $consulta->bindValue(':rutaImagen', $ $this->rutaImagen);
-        $consulta->bindValue(':codigoMesa', $this->rol, PDO::PARAM_STR);
+        $consulta->bindValue(':rutaImagen', $this->rutaImagen, PDO::PARAM_STR);
+        $consulta->bindValue(':codigoMesa', $this->codigoMesa, PDO::PARAM_STR);
+        $consulta->bindValue(':nombreCliente', $this->nombreCliente, PDO::PARAM_STR);
         $consulta->execute();
 
         return $objAccesoDatos->obtenerUltimoId();
@@ -36,9 +39,10 @@ class Pedido
             SELECT P.id, 
                 P.codigo, 
                 P.rutaImagen, 
-                M.codigo as codigoMesa
-            FROM pedidos M
-                JOIN mesas R ON M.id = P.idMesa
+                R.codigo as codigoMesa
+                P.nombreCliente
+            FROM pedidos P
+                JOIN mesas R ON R.id = P.idMesa
         ");
         $consulta->execute();
 
@@ -53,6 +57,7 @@ class Pedido
                 P.codigo, 
                 P.rutaImagen, 
                 M.codigo as codigoMesa
+                P.nombreCliente
             FROM pedidos M
                 JOIN mesas R ON M.id = P.idMesa
             WHERE P.codigo = :codigoPedido
@@ -71,6 +76,7 @@ class Pedido
             SET P.codigo = :codigo, 
                 P.rutaImagen = :rutaImagen, 
                 P.idMesa = M.id
+                P.nombreCliente = :nombreCliente
             FROM pedidos P
                 JOIN mesas R ON M.id = :codigoMesa
             WHERE P.id = :id
@@ -78,6 +84,7 @@ class Pedido
         $consulta->bindValue(':pedido', $pedido->codigo, PDO::PARAM_STR);
         $consulta->bindValue(':rutaImagen', $pedido->rutaImagen);
         $consulta->bindValue(':codigoMesa', $pedido->codigoMesa, PDO::PARAM_STR);
+        $consulta->bindValue(':nombreCliente', $pedido->nombreCliente, PDO::PARAM_STR);
         $consulta->bindValue(':id', $pedido->id, PDO::PARAM_INT);
         $consulta->execute();
     }

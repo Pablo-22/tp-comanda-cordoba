@@ -78,4 +78,16 @@ class AutentificadorJWT
 
         return sha1($aud);
     }
+
+	public static function VerificarAcceso($request, $response){
+		$token = $request->getHeaderLine('Authorization');
+
+		AutentificadorJWT::VerificarToken($token);
+		$data = AutentificadorJWT::ObtenerData($token);
+		if ($data->rol = 'socio') {
+			return $response;
+		}else{
+			throw new Exception("Error Processing Request", 1);
+		}
+	}
 }

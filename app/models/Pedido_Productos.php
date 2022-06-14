@@ -5,25 +5,22 @@ class PedidoProductos
     public $id;
     public $codigoPedido;
     public $cantidad;
-    public $IdProducto;
+    public $idProducto;
 
-    public function crearPedido()
+    public function CargarPedido_Productos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
-            INSERT INTO pedidos (idPedido, idProducto, cantidad) 
+            INSERT INTO pedido_productos (idPedido, idProducto, cantidad) 
             SELECT 
-                P.id AS idPedido,
+                (SELECT id FROM pedidos P WHERE codigo = :codigoPedido LIMIT 1) AS idPedido,
                 :idProducto AS idProducto,
-                :cantidad AS cantidad,
-            FROM pedidos P
-            WHERE P.codigoPedido = :codigoPedido
-            LIMIT 1
+                :cantidad AS cantidad
         ");
 
         $consulta->bindValue(':codigoPedido', $this->codigoPedido, PDO::PARAM_STR);
-        $consulta->bindValue(':IdProducto', $this->rol, PDO::PARAM_STR);
-        $consulta->bindValue(':cantidad', $ $this->cantidad);
+        $consulta->bindValue(':idProducto', $this->idProducto, PDO::PARAM_STR);
+        $consulta->bindValue(':cantidad', $this->cantidad);
         $consulta->execute();
 
         return $objAccesoDatos->obtenerUltimoId();
@@ -36,7 +33,7 @@ class PedidoProductos
             SELECT P.id, 
                 PE.codigoPedido, 
                 A.cantidad, 
-                A.IdProducto
+                A.idProducto
             FROM pedido_productos A
                 JOIN pedidos PE ON PE.id = A.idPedido
         ");
@@ -52,7 +49,7 @@ class PedidoProductos
             SELECT P.id, 
                 P.codigoPedido, 
                 P.cantidad, 
-                M.codigoPedido as IdProducto
+                M.codigoPedido as idProducto
             FROM pedidos M
                 JOIN mesas R ON M.id = P.idMesa
             WHERE P.codigoPedido = :codigoPedido
@@ -72,12 +69,12 @@ class PedidoProductos
                 P.cantidad = :cantidad, 
                 P.idMesa = M.id
             FROM pedidos P
-                JOIN mesas R ON M.id = :IdProducto
+                JOIN mesas R ON M.id = :idProducto
             WHERE P.id = :id
         ");
         $consulta->bindValue(':pedido', $pedido->codigoPedido, PDO::PARAM_STR);
         $consulta->bindValue(':cantidad', $pedido->cantidad);
-        $consulta->bindValue(':IdProducto', $pedido->IdProducto, PDO::PARAM_STR);
+        $consulta->bindValue(':idProducto', $pedido->idProducto, PDO::PARAM_STR);
         $consulta->bindValue(':id', $pedido->id, PDO::PARAM_INT);
         $consulta->execute();
     }

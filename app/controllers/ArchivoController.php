@@ -113,7 +113,7 @@ class ArchivoController {
                 $uploadOk = FALSE;
             }
 
-            Pizza::CreateDir($path);
+            ArchivoController::CreateDir($path);
         }
             
         //VERIFICO SI HUBO ALGUN ERROR, CHEQUEANDO $uploadOk
@@ -122,6 +122,7 @@ class ArchivoController {
             echo "<br/>NO SE PUDO SUBIR EL ARCHIVO.";
             
         } else {
+			var_dump($destino);
             //MUEVO EL ARCHIVO DEL TEMPORAL AL DESTINO FINAL
             if (move_uploaded_file($_FILES["archivo"]["tmp_name"], $destino)) {
                 echo "<br/>El archivo ". basename( $_FILES["archivo"]["name"]). " ha sido subido exitosamente.";

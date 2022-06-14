@@ -1,6 +1,7 @@
 <?php
 require_once './models/Usuario.php';
 require_once './interfaces/IApiUsable.php';
+require_once './middlewares/AutentificadorJWT.php';
 
 class UsuarioController extends Usuario implements IApiUsable
 {
@@ -78,12 +79,30 @@ class UsuarioController extends Usuario implements IApiUsable
 	public function BorrarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
-		var_dump($parametros);
 
 		$usuarioId = $parametros['id'];
 		Usuario::borrarUsuario($id);
 
 		$payload = json_encode(array("mensaje" => "Usuario borrado con exito"));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+	public function VerificarCredenciales($request, $response, $args){
+		$parametros = $request->getParsedBody();
+		$nombreUsuario = $parametros['nombre'];
+		$clave = $parametros['clave'];
+		$output = 'Credenciales incorrectas.';
+
+		$usuario = Usuario::obtenerUsuario($nombreUsuario, $clave);
+		if (password_verify($clave, $usuario->clave)) {
+			$usuario->clave = null;
+			$output = AutentificadorJWT::crearToken($usuario);
+		}
+
+		$payload = json_encode(array("respuesta" => $output));
 
 		$response->getBody()->write($payload);
 		return $response

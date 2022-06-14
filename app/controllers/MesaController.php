@@ -4,76 +4,81 @@ require_once './interfaces/IApiUsable.php';
 
 class MesaController extends Mesa implements IApiUsable
 {
-  public function CargarUno($request, $response, $args)
-  {
-      $parametros = $request->getParsedBody();
+	public function CargarUno($request, $response, $args)
+	{
+		$parametros = $request->getParsedBody();
+		$token = $request->getHeaderLine('Authorization');
+		$nombreUsuario = JWTAuthenticator::ObtenerData($token)->nombre;
 
-      $id = $parametros['id'];
-      $codigo = $parametros['codigo'];
-      $capacidad = $parametros['capacidad'];
+		$codigo = $parametros['codigo'];
+		$capacidad = $parametros['capacidad'];
 
-      // Creamos la mesa
-      $mesa = new Mesa();
-      $mesa->id = $id;
-      $mesa->codigo = $codigo;
-      $mesa->capacidad = $capacidad;
-      $mesa->crearMesa();
+		// Creamos la mesa
+		$mesa = new Mesa();
+		$mesa->codigo = $codigo;
+		$mesa->capacidad = $capacidad;
+		$idMesa = $mesa->crearMesa();
 
-      $payload = json_encode(array("mensaje" => "Mesa creado con exito"));
+		$estadoMesa = new Estado();
+		$estadoMesa->idEntidad = $idMesa;
+		$estadoMesa->Descripcion = Estado::getEstadoDefaultMesa();
+		$estadoMesa->usuarioCreador = $nombreUsuario;
 
-      $response->getBody()->write($payload);
-      return $response
-        ->withHeader('Content-Type', 'application/json');
-  }
+		$payload = json_encode(array("mensaje" => "Mesa creada con éxito"));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
 
 
-  public function TraerUno($request, $response, $args)
-  {
-      // Buscamos mesa por codigo
-      $mesa = $args['codigo'];
-      $mesa = Mesa::obtenerMesa($mesa);
-      $payload = json_encode($mesa);
+	public function TraerUno($request, $response, $args)
+	{
+		// Buscamos mesa por codigo
+		$mesa = $args['codigo'];
+		$mesa = Mesa::obtenerMesa($mesa);
+		$payload = json_encode($mesa);
 
-      $response->getBody()->write($payload);
-      return $response
-        ->withHeader('Content-Type', 'application/json');
-  }
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
 
-  public function TraerTodos($request, $response, $args)
-  {
-      $lista = Mesa::obtenerTodos();
-      $payload = json_encode(array("listaMesa" => $lista));
+	public function TraerTodos($request, $response, $args)
+	{
+		$lista = Mesa::obtenerTodos();
+		$payload = json_encode(array("listaMesa" => $lista));
 
-      $response->getBody()->write($payload);
-      return $response
-        ->withHeader('Content-Type', 'application/json');
-  }
-  
-  public function ModificarUno($request, $response, $args)
-  {
-      $parametros = $request->getParsedBody();
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+	
+	public function ModificarUno($request, $response, $args)
+	{
+		$parametros = $request->getParsedBody();
 
-      $id = $parametros['id'];
-      Mesa::modificarMesa($id);
+		$id = $parametros['id'];
+		Mesa::modificarMesa($id);
 
-      $payload = json_encode(array("mensaje" => "Mesa modificado con exito"));
+		$payload = json_encode(array("mensaje" => "Mesa modificado con exito"));
 
-      $response->getBody()->write($payload);
-      return $response
-        ->withHeader('Content-Type', 'application/json');
-  }
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
 
-  public function BorrarUno($request, $response, $args)
-  {
-      $parametros = $request->getParsedBody();
+	public function BorrarUno($request, $response, $args)
+	{
+		$parametros = $request->getParsedBody();
 
-      $mesaId = $parametros['id'];
-      Mesa::borrarMesa($id);
+		$mesaId = $parametros['id'];
+		Mesa::borrarMesa($id);
 
-      $payload = json_encode(array("mensaje" => "Mesa borrado con exito"));
+		$payload = json_encode(array("mensaje" => "Mesa borrado con exito"));
 
-      $response->getBody()->write($payload);
-      return $response
-        ->withHeader('Content-Type', 'application/json');
-  }
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
 }

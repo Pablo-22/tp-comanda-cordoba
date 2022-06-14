@@ -12,10 +12,9 @@ class Mesa
         $consulta = $objAccesoDatos->prepararConsulta("
             INSERT INTO mesas (codigo, capacidad) 
             VALUES ( 
-                :codigoMesa AS codigo,
-                :capacidad AS capacidad
+                :codigoMesa,
+                :capacidad
             )
-            LIMIT 1
         ");
 
         $capacidadHash = password_hash($this->capacidad, PASSWORD_DEFAULT);
@@ -23,6 +22,7 @@ class Mesa
         $consulta->bindValue(':capacidad', $capacidadHash);
         $consulta->execute();
 
+		
         return $objAccesoDatos->obtenerUltimoId();
     }
 
