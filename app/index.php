@@ -18,6 +18,7 @@ require_once './controllers/UsuarioController.php';
 require_once './controllers/PedidoController.php';
 require_once './controllers/MesaController.php';
 require_once './controllers/ProductoController.php';
+require_once './middlewares/ControlDeAcceso.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -43,7 +44,7 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->post('/CargarUno', \UsuarioController::class . ':CargarUno');
     $group->post('/ModificarUno', \UsuarioController::class . ':ModificarUno');
     $group->delete('[/]', \UsuarioController::class . ':BorrarUno');
-})->add(\AutentificadorJWT::class . ':VerificarAcceso');
+})->add(\AutentificadorJWT::class . ':VerificarAcceso')->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
 
 $app->group('/productos', function (RouteCollectorProxy $group) {

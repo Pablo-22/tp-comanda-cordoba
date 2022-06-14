@@ -2,6 +2,10 @@
 
 use Firebase\JWT\JWT;
 
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+use Slim\Psr7\Response;
+
 class AutentificadorJWT
 {
     private static $claveSecreta = 'T3sT$JWT';
@@ -79,15 +83,18 @@ class AutentificadorJWT
         return sha1($aud);
     }
 
-	public static function VerificarAcceso($request, $response){
+	public static function VerificarAcceso($request, $handler){
 		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$response = new Response();
 
-		AutentificadorJWT::VerificarToken($token);
-		$data = AutentificadorJWT::ObtenerData($token);
-		if ($data->rol = 'socio') {
-			return $response;
-		}else{
-			throw new Exception("Error Processing Request", 1);
+		if (!empty($token)) {
+			AutentificadorJWT::VerificarToken($token);
+			$response = $handler->handle($request);
+		} else {
+			$response->getBody()->write(json_encode( array('mensaje' => 'El token está vacío')));
 		}
+		return $response
+			->withHeader('Content-Type', 'application/json');
 	}
 }
