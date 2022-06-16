@@ -17,12 +17,10 @@ class Mesa
             )
         ");
 
-        $capacidadHash = password_hash($this->capacidad, PASSWORD_DEFAULT);
         $consulta->bindValue(':codigoMesa', $this->codigo, PDO::PARAM_STR);
-        $consulta->bindValue(':capacidad', $capacidadHash);
+        $consulta->bindValue(':capacidad', $this->capacidad);
         $consulta->execute();
 
-		
         return $objAccesoDatos->obtenerUltimoId();
     }
 

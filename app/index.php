@@ -19,6 +19,7 @@ require_once './controllers/PedidoController.php';
 require_once './controllers/MesaController.php';
 require_once './controllers/ProductoController.php';
 require_once './middlewares/ControlDeAcceso.php';
+require_once './models/Estado.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);

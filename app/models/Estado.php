@@ -11,36 +11,41 @@ class Estado
     public function guardarEstado()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-		switch ($entidad) {
-			case 'usuario':
+		switch ($this->entidad) {
+			case 'Usuario':
 				$consulta = $objAccesoDatos->prepararConsulta("
 					INSERT INTO estados_usuarios (descripcion, idUsuarioCreador, idEntidad) 
-					:descripcion,
-					(SELECT U.id FROM usuarios U WHERE U.nombre = :nombre),
-					:idEntidad
+					VALUES (
+						:descripcion,
+						(SELECT U.id FROM usuarios U WHERE U.nombre = :nombre),
+						:idEntidad
+					)
 				");
 				break;
-			case 'mesa':
+			case 'Mesa':
 				$consulta = $objAccesoDatos->prepararConsulta("
 					INSERT INTO estados_mesas (descripcion, idUsuarioCreador, idEntidad) 
-					:descripcion,
-					(SELECT U.id FROM usuarios U WHERE U.nombre = :nombre),
-					:idEntidad
+					VALUES (
+						:descripcion,
+						(SELECT U.id FROM usuarios U WHERE U.nombre = :nombre),
+						:idEntidad
+					)
 				");
 				break;
-			case 'pedido':
+			case 'Pedido':
 				$consulta = $objAccesoDatos->prepararConsulta("
 					INSERT INTO estados_pedidos (descripcion, idUsuarioCreador, idEntidad) 
-					:descripcion,
-					(SELECT U.id FROM usuarios U WHERE U.nombre = :nombre),
-					:idEntidad
+					VALUES (
+						:descripcion,
+						(SELECT U.id FROM usuarios U WHERE U.nombre = :nombre),
+						:idEntidad
+					)
 				");
 				break;
 		}
-        
 
         $consulta->bindValue(':idEntidad', $this->idEntidad, PDO::PARAM_STR);
-        $consulta->bindValue(':capacidad', $this->descripcion);
+        $consulta->bindValue(':descripcion', $this->descripcion);
         $consulta->bindValue(':nombre', $this->usuarioCreador);
         $consulta->execute();
 		
@@ -58,6 +63,6 @@ class Estado
 	}
 
 	public static function getEstadoDefaultPedido(){
-		return 'Libre';
+		return 'Pendiente';
 	}
 }

@@ -20,6 +20,11 @@ class UsuarioController extends Usuario implements IApiUsable
 		$usr->rol = $rol;
 		$usr->crearUsuario();
 
+		$estadoMesa = new Estado();
+		$estadoMesa->idEntidad = $idMesa;
+		$estadoMesa->Descripcion = Estado::getEstadoDefaultMesa();
+		$estadoMesa->usuarioCreador = $nombreUsuario;
+
 		$payload = json_encode(array("mensaje" => "Usuario creado con exito"));
 
 		$response->getBody()->write($payload);

@@ -68,6 +68,64 @@ class Pedido
         return $consulta->fetchObject('Pedido');
     }
 
+	public static function obtenerPedidosPendientes()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            SELECT P.id, 
+                P.codigo, 
+                P.rutaImagen, 
+                M.codigo as codigoMesa,
+                P.nombreCliente
+            FROM pedidos P
+                JOIN mesas M ON M.id = P.idMesa
+
+				JOIN ( -- Obtener el último estado de cada pedido
+					SELECT E.idEntidad AS IdPedido, E.descripcion
+					FROM estados_pedidos EP
+						JOIN (
+							SELECT codigoPedido, MAX(fechaInsercion)
+							FROM estados_pedidos
+							GROUP BY codigoPedido
+						) EP2 ON E.codigoPedido = EP2.codigoPedido AND EP.fechaInsercion = EP2.fechaInsercion
+				) E ON E.IdPedido = P.id
+
+            WHERE E.Descripcion = 'Pendiente'
+        ");
+        $consulta->execute();
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
+    }
+
+
+	public static function obtenerPedidosPendientesConProductos()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            SELECT P.id, 
+                P.codigo, 
+                P.rutaImagen, 
+                M.codigo as codigoMesa,
+                P.nombreCliente
+            FROM pedidos P
+                JOIN mesas M ON M.id = P.idMesa
+
+				JOIN ( -- Obtener el último estado de cada pedido
+					SELECT E.idEntidad AS IdPedido, E.descripcion
+					FROM estados_pedidos EP
+						JOIN (
+							SELECT codigoPedido, MAX(fechaInsercion)
+							FROM estados_pedidos
+							GROUP BY codigoPedido
+						) EP2 ON E.codigoPedido = EP2.codigoPedido AND EP.fechaInsercion = EP2.fechaInsercion
+				) E ON E.IdPedido = P.id
+
+            WHERE E.Descripcion = 'Pendiente'
+        ");
+        $consulta->execute();
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
+    }
+
+
     public static function modificarPedido($pedido)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();

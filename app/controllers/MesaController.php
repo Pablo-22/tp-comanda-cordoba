@@ -10,7 +10,7 @@ class MesaController extends Mesa implements IApiUsable
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
 
-		$nombreUsuario = JWTAuthenticator::ObtenerData($token)->nombre;
+		$nombreUsuario = AutentificadorJWT::ObtenerData($token)->nombre;
 
 		$codigo = $parametros['codigo'];
 		$capacidad = $parametros['capacidad'];
@@ -23,8 +23,10 @@ class MesaController extends Mesa implements IApiUsable
 
 		$estadoMesa = new Estado();
 		$estadoMesa->idEntidad = $idMesa;
-		$estadoMesa->Descripcion = Estado::getEstadoDefaultMesa();
+		$estadoMesa->entidad = 'Mesa';
+		$estadoMesa->descripcion = Estado::getEstadoDefaultMesa();
 		$estadoMesa->usuarioCreador = $nombreUsuario;
+		$estadoMesa->guardarEstado();
 
 		$payload = json_encode(array("mensaje" => "Mesa creada con éxito"));
 
@@ -36,7 +38,7 @@ class MesaController extends Mesa implements IApiUsable
 
 	public function TraerUno($request, $response, $args)
 	{
-		// Buscamos mesa por codigo
+		// Buscamos mesa por código
 		$mesa = $args['codigo'];
 		$mesa = Mesa::obtenerMesa($mesa);
 		$payload = json_encode($mesa);

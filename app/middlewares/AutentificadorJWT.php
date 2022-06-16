@@ -89,7 +89,14 @@ class AutentificadorJWT
 		$response = new Response();
 
 		if (!empty($token)) {
-			AutentificadorJWT::VerificarToken($token);
+			try {
+				AutentificadorJWT::VerificarToken($token);
+			} catch (\Throwable $th) {
+				$response->getBody()->write(json_encode( array('mensaje' => 'El token no es válido')));
+				return $response
+					->withHeader('Content-Type', 'application/json')
+					->withStatus(401);
+			}
 			$response = $handler->handle($request);
 		} else {
 			$response->getBody()->write(json_encode( array('mensaje' => 'El token está vacío')));
