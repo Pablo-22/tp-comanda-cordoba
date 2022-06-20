@@ -88,10 +88,10 @@ CREATE TABLE `pedidos` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `pedido_productos`
+-- Estructura de tabla para la tabla `productos_pedidos`
 --
 
-CREATE TABLE `pedido_productos` (
+CREATE TABLE `productos_pedidos` (
   `id` int(8) NOT NULL,
   `idPedido` int(8) DEFAULT NULL,
   `idProducto` int(8) DEFAULT NULL,
@@ -192,9 +192,9 @@ ALTER TABLE `pedidos`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indices de la tabla `pedido_productos`
+-- Indices de la tabla `productos_pedidos`
 --
-ALTER TABLE `pedido_productos`
+ALTER TABLE `productos_pedidos`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -244,9 +244,9 @@ ALTER TABLE `pedidos`
   MODIFY `id` int(8) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `pedido_productos`
+-- AUTO_INCREMENT de la tabla `productos_pedidos`
 --
-ALTER TABLE `pedido_productos`
+ALTER TABLE `productos_pedidos`
   MODIFY `id` int(8) NOT NULL AUTO_INCREMENT;
 
 --

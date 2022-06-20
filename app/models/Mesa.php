@@ -5,6 +5,7 @@ class Mesa
     public $id;
     public $codigo;
     public $capacidad;
+    public $estado;
 
     public function crearMesa()
     {
@@ -28,10 +29,24 @@ class Mesa
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
-            SELECT U.id, 
-                U.codigo, 
-                U.capacidad, 
-            FROM mesas U
+            SELECT  M.id, 
+                M.codigo, 
+                M.capacidad,
+				E.descripcion AS estado
+            FROM mesas M
+				
+				LEFT JOIN ( -- Obtener el último estado
+					SELECT EP.idEntidad AS idMesa, EP.descripcion
+					FROM estados_mesas EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS idMesa, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_mesas
+							GROUP BY idEntidad
+						) EP2 ON EP2.idMesa = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idMesa = M.id
         ");
         $consulta->execute();
 
@@ -42,11 +57,11 @@ class Mesa
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
-            SELECT U.id, 
-                U.codigo, 
-                U.capacidad, 
-            FROM mesas U
-            WHERE U.codigo = :codigoMesa
+            SELECT M.id, 
+                M.codigo, 
+                M.capacidad
+            FROM mesas M
+            WHERE M.codigo = :codigoMesa
         ");
         $consulta->bindValue(':codigoMesa', $codigo, PDO::PARAM_STR);
         $consulta->execute();
@@ -59,15 +74,17 @@ class Mesa
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
             UPDATE mesas 
-            SET U.codigo = :mesa, 
-                U.capacidad = :capacidad,
-            FROM mesas U
+            SET M.codigo = :mesa, 
+                M.capacidad = :capacidad
+            FROM mesas M
             WHERE id = :id
         ");
         $consulta->bindValue(':mesa', $mesa->codigo, PDO::PARAM_STR);
         $consulta->bindValue(':capacidad', $mesa->capacidad, PDO::PARAM_STR);
         $consulta->bindValue(':id', $mesa->id, PDO::PARAM_INT);
         $consulta->execute();
+
+		return $objAccesoDato->obtenerUltimoId();
     }
 
     public static function borrarMesa($id)
@@ -80,5 +97,7 @@ class Mesa
         $consulta->bindValue(':id', $id, PDO::PARAM_INT);
         $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
         $consulta->execute();
+
+		return $objAccesoDato->obtenerUltimoId();
     }
 }

@@ -6,6 +6,7 @@ class Usuario
     public $nombre;
     public $clave;
     public $rol;
+    public $estado;
 
     public function crearUsuario()
     {
@@ -37,9 +38,23 @@ class Usuario
             SELECT U.id, 
                 U.nombre, 
                 U.clave, 
-                R.descripcion as rol
+                R.descripcion as rol,
+				E.descripcion AS estado
             FROM usuarios U
                 JOIN roles R ON R.id = U.idRol
+
+				LEFT JOIN ( -- Obtener el último estado
+					SELECT EP.idEntidad AS idUsuario, EP.descripcion
+					FROM estados_usuarios EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS idUsuario, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_usuarios
+							GROUP BY idEntidad
+						) EP2 ON EP2.idUsuario = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idUsuario = U.id
         ");
         $consulta->execute();
 
@@ -53,9 +68,23 @@ class Usuario
             SELECT U.id, 
                 U.nombre, 
                 U.clave, 
-                R.descripcion as rol
+                R.descripcion as rol,
+				E.descripcion AS estado
             FROM usuarios U
                 JOIN roles R ON R.id = U.idRol
+
+				LEFT JOIN ( -- Obtener el último estado
+					SELECT EP.idEntidad AS idUsuario, EP.descripcion
+					FROM estados_usuarios EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS idUsuario, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_usuarios
+							GROUP BY idEntidad
+						) EP2 ON EP2.idUsuario = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idUsuario = U.id
             WHERE U.nombre = :nombreUsuario;
         ");
         $consulta->bindValue(':nombreUsuario', $nombre, PDO::PARAM_STR);

@@ -1,5 +1,16 @@
 <?php
 
+define("STATUS_MESA_DEFAULT", "Libre");
+define("STATUS_MESA_OCUPADO", "Ocupado");
+
+
+define("STATUS_PEDIDO_DEFAULT", "Pendiente");
+define("STATUS_PEDIDO_EN_PREPARACION", "En preparación");
+
+
+define("STATUS_USUARIO_DEFAULT", "Libre");
+
+
 class Estado
 {
     public $id;
@@ -11,6 +22,7 @@ class Estado
     public function guardarEstado()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
+		$consulta;
 		switch ($this->entidad) {
 			case 'Usuario':
 				$consulta = $objAccesoDatos->prepararConsulta("
@@ -42,8 +54,17 @@ class Estado
 					)
 				");
 				break;
+			case 'ProductoPedido':
+				$consulta = $objAccesoDatos->prepararConsulta("
+					INSERT INTO estados_productos_pedidos (descripcion, idUsuarioCreador, idEntidad) 
+					VALUES (
+						:descripcion,
+						(SELECT U.id FROM usuarios U WHERE U.nombre = :nombre),
+						:idEntidad
+					)
+				");
+				break;
 		}
-
         $consulta->bindValue(':idEntidad', $this->idEntidad, PDO::PARAM_STR);
         $consulta->bindValue(':descripcion', $this->descripcion);
         $consulta->bindValue(':nombre', $this->usuarioCreador);
@@ -52,16 +73,17 @@ class Estado
         return $objAccesoDatos->obtenerUltimoId();
     }
 	
-
-
+	// MESAS
 	public static function getEstadoDefaultMesa(){
 		return 'Libre';
 	}
 
+	// USUARIOS
 	public static function getEstadoDefaultUsuario(){
 		return 'Libre';
 	}
 
+	// PEDIDOS
 	public static function getEstadoDefaultPedido(){
 		return 'Pendiente';
 	}

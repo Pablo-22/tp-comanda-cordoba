@@ -24,9 +24,9 @@ class Producto
         ");
 
         $consulta->bindValue(':nombreProducto', $this->nombre, PDO::PARAM_STR);
-        $consulta->bindValue(':tiempoEstimado', $ $this->tiempoEstimado);
-        $consulta->bindValue(':precio', $ $this->precio);
-        $consulta->bindValue(':rolEncargado', $this->rol, PDO::PARAM_STR);
+        $consulta->bindValue(':tiempoEstimado', $this->tiempoEstimado);
+        $consulta->bindValue(':precio', $this->precio);
+        $consulta->bindValue(':rolEncargado', $this->rolEncargado, PDO::PARAM_STR);
         $consulta->execute();
 
         return $objAccesoDatos->obtenerUltimoId();

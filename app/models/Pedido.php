@@ -7,7 +7,9 @@ class Pedido
     public $rutaImagen;
     public $codigoMesa;
     public $nombreCliente;
-	public $pedido_producto;
+	public $productosPedidos;
+	public $estado;
+	public $tiempoEstimado;
 
     public function crearPedido()
     {
@@ -39,10 +41,24 @@ class Pedido
             SELECT P.id, 
                 P.codigo, 
                 P.rutaImagen, 
-                R.codigo as codigoMesa
-                P.nombreCliente
+                R.codigo as codigoMesa,
+                P.nombreCliente,
+                E.descripcion as estado
             FROM pedidos P
                 JOIN mesas R ON R.id = P.idMesa
+
+				JOIN ( -- Obtener el último estado de cada pedido
+					SELECT EP.idEntidad AS IdPedido, EP.descripcion
+					FROM estados_pedidos EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS IdPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_pedidos
+							GROUP BY idEntidad
+						) EP2 ON EP2.IdPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.IdPedido = P.id
         ");
         $consulta->execute();
 
@@ -56,10 +72,24 @@ class Pedido
             SELECT P.id, 
                 P.codigo, 
                 P.rutaImagen, 
-                M.codigo as codigoMesa
-                P.nombreCliente
-            FROM pedidos M
+                M.codigo as codigoMesa,
+                P.nombreCliente,
+                E.descripcion as estado
+			FROM pedidos M
                 JOIN mesas R ON M.id = P.idMesa
+
+				JOIN ( -- Obtener el último estado de cada pedido
+					SELECT EP.idEntidad AS IdPedido, EP.descripcion
+					FROM estados_pedidos EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS IdPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_pedidos
+							GROUP BY idEntidad
+						) EP2 ON EP2.IdPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.IdPedido = P.id
             WHERE P.codigo = :codigoPedido
         ");
         $consulta->bindValue(':codigoPedido', $codigo, PDO::PARAM_STR);
@@ -72,59 +102,33 @@ class Pedido
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
-            SELECT P.id, 
-                P.codigo, 
-                P.rutaImagen, 
-                M.codigo as codigoMesa,
-                P.nombreCliente
-            FROM pedidos P
-                JOIN mesas M ON M.id = P.idMesa
-
-				JOIN ( -- Obtener el último estado de cada pedido
-					SELECT E.idEntidad AS IdPedido, E.descripcion
+			SELECT P.id, 
+				P.codigo, 
+				P.rutaImagen, 
+				M.codigo as codigoMesa,
+				P.nombreCliente,
+                E.descripcion as estado
+			FROM pedidos P
+				JOIN mesas M ON M.id = P.idMesa
+			
+				LEFT JOIN ( -- Obtener el último estado de cada pedido
+					SELECT EP.idEntidad AS IdPedido, EP.descripcion
 					FROM estados_pedidos EP
 						JOIN (
-							SELECT codigoPedido, MAX(fechaInsercion)
+							SELECT id, 
+								idEntidad AS IdPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
 							FROM estados_pedidos
-							GROUP BY codigoPedido
-						) EP2 ON E.codigoPedido = EP2.codigoPedido AND EP.fechaInsercion = EP2.fechaInsercion
+							GROUP BY idEntidad
+						) EP2 ON EP2.IdPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.IdPedido = P.id
-
-            WHERE E.Descripcion = 'Pendiente'
+			
+			WHERE E.Descripcion = 'Pendiente'
         ");
         $consulta->execute();
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
     }
-
-
-	public static function obtenerPedidosPendientesConProductos()
-    {
-        $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("
-            SELECT P.id, 
-                P.codigo, 
-                P.rutaImagen, 
-                M.codigo as codigoMesa,
-                P.nombreCliente
-            FROM pedidos P
-                JOIN mesas M ON M.id = P.idMesa
-
-				JOIN ( -- Obtener el último estado de cada pedido
-					SELECT E.idEntidad AS IdPedido, E.descripcion
-					FROM estados_pedidos EP
-						JOIN (
-							SELECT codigoPedido, MAX(fechaInsercion)
-							FROM estados_pedidos
-							GROUP BY codigoPedido
-						) EP2 ON E.codigoPedido = EP2.codigoPedido AND EP.fechaInsercion = EP2.fechaInsercion
-				) E ON E.IdPedido = P.id
-
-            WHERE E.Descripcion = 'Pendiente'
-        ");
-        $consulta->execute();
-        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
-    }
-
 
     public static function modificarPedido($pedido)
     {
@@ -133,7 +137,7 @@ class Pedido
             UPDATE pedidos 
             SET P.codigo = :codigo, 
                 P.rutaImagen = :rutaImagen, 
-                P.idMesa = M.id
+                P.idMesa = M.id,
                 P.nombreCliente = :nombreCliente
             FROM pedidos P
                 JOIN mesas R ON M.id = :codigoMesa

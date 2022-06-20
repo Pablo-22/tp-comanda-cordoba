@@ -18,12 +18,12 @@ class UsuarioController extends Usuario implements IApiUsable
 		$usr->nombre = $nombre;
 		$usr->clave = $clave;
 		$usr->rol = $rol;
-		$usr->crearUsuario();
+		$idUsuario = $usr->crearUsuario();
 
-		$estadoMesa = new Estado();
-		$estadoMesa->idEntidad = $idMesa;
-		$estadoMesa->Descripcion = Estado::getEstadoDefaultMesa();
-		$estadoMesa->usuarioCreador = $nombreUsuario;
+		$estadoUsuario = new Estado();
+		$estadoUsuario->idEntidad = $idUsuario;
+		$estadoUsuario->Descripcion = STATUS_USUARIO_DEFAULT;
+		$estadoUsuario->usuarioCreador = $nombre;
 
 		$payload = json_encode(array("mensaje" => "Usuario creado con exito"));
 
@@ -105,6 +105,11 @@ class UsuarioController extends Usuario implements IApiUsable
 		if (password_verify($clave, $usuario->clave)) {
 			$usuario->clave = null;
 			$output = AutentificadorJWT::crearToken($usuario);
+			
+			$log = new Log();
+			$log->idUsuarioCreador = $usuario->id;
+			$log->descripcion = Log::obtenerDescripcionLogLogin();
+			$log->guardarLog();
 		}
 
 		$payload = json_encode(array("respuesta" => $output));
