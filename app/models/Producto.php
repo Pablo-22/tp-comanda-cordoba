@@ -49,7 +49,7 @@ class Producto
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Producto');
     }
 
-    public static function obtenerProducto($nombre)
+    public static function obtenerProducto($id)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -60,9 +60,9 @@ class Producto
                 R.descripcion as rolEncargado
             FROM productos P
                 JOIN roles R ON R.id = P.idRolEncargado
-            WHERE P.nombre = :nombreProducto
+            WHERE P.id = :idProducto
         ");
-        $consulta->bindValue(':nombreProducto', $nombre, PDO::PARAM_STR);
+        $consulta->bindValue(':idProducto', $id, PDO::PARAM_STR);
         $consulta->execute();
 
         return $consulta->fetchObject('Producto');

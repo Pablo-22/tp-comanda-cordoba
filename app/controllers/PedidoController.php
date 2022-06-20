@@ -102,6 +102,7 @@ class PedidoController extends Pedido implements IApiUsable
 			$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($pedido->codigo);
 			foreach ($pedido->productosPedidos as $producto) {
 				$producto->producto = Producto::obtenerProducto($producto->idProducto);
+				var_dump($producto->producto);
 			}
 		}
 
