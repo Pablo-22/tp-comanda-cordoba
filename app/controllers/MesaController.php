@@ -40,7 +40,7 @@ class MesaController extends Mesa implements IApiUsable
 	{
 		// Buscamos mesa por código
 		$mesa = $args['codigo'];
-		$mesa = Mesa::obtenerMesa($mesa);
+		$mesa = Mesa::ObtenerMesa($mesa);
 		$payload = json_encode($mesa);
 
 		$response->getBody()->write($payload);

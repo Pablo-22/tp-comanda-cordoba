@@ -53,7 +53,7 @@ class Mesa
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
     }
 
-    public static function obtenerMesa($codigo)
+    public static function ObtenerMesa($codigo)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("

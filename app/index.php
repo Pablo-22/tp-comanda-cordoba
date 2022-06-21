@@ -65,6 +65,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->post('/CargarUno', \PedidoController::class . ':CargarUno');
     $group->post('/TomarPedido', \PedidoController::class . ':TomarPedido');
     $group->post('/TerminarPreparacionProducto', \PedidoController::class . ':TerminarPreparacionProducto');
+    $group->post('/EntregarPedido', \PedidoController::class . ':EntregarPedido');
     $group->post('/ModificarUno', \PedidoController::class . ':ModificarUno');
     $group->delete('[/]', \PedidoController::class . ':BorrarUno');
 });

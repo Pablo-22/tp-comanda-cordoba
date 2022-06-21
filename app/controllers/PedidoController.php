@@ -39,7 +39,7 @@ class PedidoController extends Pedido implements IApiUsable
 		$estadoPedido->guardarEstado();
 
 		$estadoMesa = new Estado();
-		$estadoMesa->idEntidad = MesaController::obtenerMesa($codigoMesa)->id;
+		$estadoMesa->idEntidad = MesaController::ObtenerMesa($codigoMesa)->id;
 		$estadoMesa->descripcion = STATUS_MESA_ESPERANDO;
 		$estadoMesa->usuarioCreador = $nombreUsuario;
 		$estadoMesa->entidad = 'Mesa';
@@ -274,44 +274,30 @@ class PedidoController extends Pedido implements IApiUsable
 		$usuario = AutentificadorJWT::ObtenerData($token);
 
 		$pedido = Pedido::ObtenerPedido($codigoPedido);
+		$mesa = Mesa::ObtenerMesa($pedido->codigoMesa);
 		if ($usuario->rol == 'socio' || $usuario->rol == 'mozo') {
 			if ($productoPedido->estado == STATUS_PEDIDO_LISTO_PARA_SERVIR) {
 
-				$estado_ped_prod = new Estado();
-				$estado_ped_prod->idEntidad = $idProductoPedido;
-				$estado_ped_prod->descripcion = STATUS_PRODUCTO_LISTO;
-				$estado_ped_prod->entidad = 'ProductoPedido';
-				$estado_ped_prod->usuarioCreador = $usuario->nombre;
-				$estado_ped_prod->guardarEstado();
+				$estado_pedido = new Estado();
+				$estado_pedido->idEntidad = $pedido->id;
+				$estado_pedido->descripcion = STATUS_PEDIDO_ENTREGADO;
+				$estado_pedido->entidad = 'Pedido';
+				$estado_pedido->usuarioCreador = $usuario->nombre;
+				$estado_pedido->guardarEstado();
 
+				$estado_mesa = new Estado();
+				$estado_mesa->idEntidad = $mesa->id;
+				$estado_mesa->descripcion = STATUS_MESA_COMIENDO;
+				$estado_mesa->entidad = 'Mesa';
+				$estado_mesa->usuarioCreador = $usuario->nombre;
+				$estado_mesa->guardarEstado();
 
-				$usuario = Usuario::obtenerUsuario($usuario->nombre);
-				$estado_ped_prod = new Estado();
-				$estado_ped_prod->idEntidad = $usuario->id;
-				$estado_ped_prod->descripcion = STATUS_USUARIO_DEFAULT;
-				$estado_ped_prod->entidad = 'Usuario';
-				$estado_ped_prod->usuarioCreador = $usuario->nombre;
-				$estado_ped_prod->guardarEstado();
-
-
-				$pedido = Pedido::ObtenerPedido($codigoPedido);
-
-				if ($pedido->estaListo()) {
-					$estado_pedido = new Estado();
-					$estado_pedido->idEntidad = $pedido->id;
-					$estado_pedido->descripcion = STATUS_PEDIDO_LISTO_PARA_SERVIR;
-					$estado_pedido->entidad = 'Pedido';
-					$estado_pedido->usuarioCreador = $usuario->nombre;
-					$estado_pedido->guardarEstado();
-
-					$mensaje = 'Se completó el pedido ' . $pedido->codigo;
-				}
-				else {
-					$mensaje = 'Se completó la preparación del producto ' . $productoPedido->producto->nombre;
-				}
+				$mensaje = 'Se entregó el pedido ' . $pedido->codigo;
 			} else {
-				$mensaje = 'El producto no está en preparación';
+				$mensaje = 'El pedido no está listo para servir';
 			}
+		} else {
+			$mensaje = 'Usuario no autorizado';
 		}
 
 		$payload = json_encode(array("mensaje" => $mensaje));
