@@ -276,7 +276,7 @@ class PedidoController extends Pedido implements IApiUsable
 		$pedido = Pedido::ObtenerPedido($codigoPedido);
 		$mesa = Mesa::ObtenerMesa($pedido->codigoMesa);
 		if ($usuario->rol == 'socio' || $usuario->rol == 'mozo') {
-			if ($productoPedido->estado == STATUS_PEDIDO_LISTO_PARA_SERVIR) {
+			if ($pedido->estado == STATUS_PEDIDO_LISTO_PARA_SERVIR) {
 
 				$estado_pedido = new Estado();
 				$estado_pedido->idEntidad = $pedido->id;
