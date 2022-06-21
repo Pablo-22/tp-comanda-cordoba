@@ -18,11 +18,13 @@ class PedidoController extends Pedido implements IApiUsable
 		$codigoMesa = $parametros['codigoMesa'];
 		$productos_cantidad = $parametros['cantidad'];
 		$idProductos = $parametros['producto'];
+		$nombreCliente = $parametros['nombreCliente'];
 
 		// Creamos el usuario 
 		$pedido = new Pedido();
 		$pedido->codigo = $codigo;
 		$pedido->codigoMesa = $codigoMesa;
+		$pedido->nombreCliente = $nombreCliente;
 
 		$path = '..\\ImagenesPedidos\\' . $pedido->codigo . '.png';
 		ArchivoController::SaveFile($path, true, 500000, ['.png', '.jpg', '.jpeg']);

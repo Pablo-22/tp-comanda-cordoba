@@ -43,6 +43,7 @@ class Producto
                 R.descripcion as rolEncargado
             FROM productos P
                 JOIN roles R ON R.id = P.idRolEncargado
+			ORDER BY P.id ASC
         ");
         $consulta->execute();
 
