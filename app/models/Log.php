@@ -32,7 +32,7 @@ class Log
 		return 'Ha iniciado sesión';
 	}
 
-	public static function obtenerDescripcionLogCrearPedido(){
+	public static function obtenerDescripcionLogCrearPedidoDB(){
 		return 'Ha creado un pedido';
 	}
 

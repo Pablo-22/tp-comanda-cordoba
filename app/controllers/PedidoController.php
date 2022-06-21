@@ -28,7 +28,7 @@ class PedidoController extends Pedido implements IApiUsable
 		ArchivoController::SaveFile($path, true, 500000, ['.png', '.jpg', '.jpeg']);
 
 		$pedido->rutaImagen = $path;
-		$idPedido = $pedido->crearPedido();
+		$idPedido = $pedido->CrearPedidoDB();
 
 		$estadoPedido = new Estado();
 		$estadoPedido->idEntidad = $idPedido;
@@ -40,7 +40,7 @@ class PedidoController extends Pedido implements IApiUsable
 
 		$estadoMesa = new Estado();
 		$estadoMesa->idEntidad = MesaController::obtenerMesa($codigoMesa)->id;
-		$estadoMesa->descripcion = STATUS_MESA_OCUPADO;
+		$estadoMesa->descripcion = STATUS_MESA_ESPERANDO;
 		$estadoMesa->usuarioCreador = $nombreUsuario;
 		$estadoMesa->entidad = 'Mesa';
 
@@ -60,14 +60,8 @@ class PedidoController extends Pedido implements IApiUsable
 
 	public function TraerUno($request, $response, $args)
 	{
-		// Buscamos usuario por codigo
 		$codigoPedido = $args['codigo'];
-		$pedido = Pedido::obtenerPedido($codigoPedido);
-
-		$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($codigoPedido);
-		foreach ($pedido->productosPedidos as $producto) {
-			$producto->producto = Producto::obtenerProducto($producto->idProducto);
-		}
+		$pedido = Pedido::ObtenerPedido($codigoPedido);
 
 		$payload = json_encode($pedido);
 
@@ -78,14 +72,7 @@ class PedidoController extends Pedido implements IApiUsable
 
 	public function TraerTodos($request, $response, $args)
 	{
-		$lista = Pedido::obtenerTodos();
-
-		foreach ($lista as $pedido) {
-			$pedido->productosPedidos = ProductosPedidos::obtenerProductosDePedido($pedido->codigo);
-			foreach ($pedido->productosPedidos as $producto) {
-				$producto->producto = Producto::obtenerProducto($producto->idProducto);
-			}
-		}
+		$lista = Pedido::ObtenerTodos();
 
 		$payload = json_encode(array("listaPedido" => $lista));
 
@@ -96,14 +83,18 @@ class PedidoController extends Pedido implements IApiUsable
 
 	public function TraerPendientes($request, $response, $args)
 	{
-		$lista = Pedido::obtenerPedidosPendientes();
+		$lista = Pedido::ObtenerPedidosPendientesDB();
 
 		foreach ($lista as $pedido) {
 			$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($pedido->codigo);
 			foreach ($pedido->productosPedidos as $producto) {
 				$producto->producto = Producto::obtenerProducto($producto->idProducto);
-				var_dump($producto->producto);
 			}
+
+			$pedido->tiempoEstimado = max(array_map(function($productoPedido) {
+				return $productoPedido->tiempoEstimado;
+			}, $pedido->productosPedidos));
+	
 		}
 
 		$payload = json_encode(array("listaPedido" => $lista));
@@ -159,54 +150,112 @@ class PedidoController extends Pedido implements IApiUsable
 		}
 	}
 
-	public static function TomarUno($request, $response, $args){
+	public static function TomarPedido($request, $response, $args){
+		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
 
-		$codigoPedido = $parametros['codigoPedido'];
+		$codigoPedido = $parametros['codigo'];
 		$idProductoPedido = $parametros['idProductoPedido'];
 		$tiempoEstimado = $parametros['tiempoEstimado'];
 		
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::ObtenerData($token)->nombre;
+		$usuario = AutentificadorJWT::ObtenerData($token);
 
 		$productoPedido = ProductoPedido::obtenerProductoPedido($idProductoPedido);
 		$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
 		if ($usuario->rol == 'socio' || $productoPedido->producto->rolEncargado == $usuario->rol) {
-			$pedido = Pedido::obtenerPedido($codigoPedido);
+			$pedido = Pedido::ObtenerPedidoDB($codigoPedido);
 
 			$estado_pedido = new Estado();
 			$estado_pedido->idEntidad = $pedido->id;
 			$estado_pedido->descripcion = STATUS_PEDIDO_EN_PREPARACION;
 			$estado_pedido->entidad = 'Pedido';
-			$estado_pedido->usuarioCreador = $usuario;
+			$estado_pedido->usuarioCreador = $usuario->nombre;
 			$estado_pedido->guardarEstado();
 
 			$estado_ped_prod = new Estado();
 			$estado_ped_prod->idEntidad = $idProductoPedido;
 			$estado_ped_prod->descripcion = STATUS_PEDIDO_EN_PREPARACION;
 			$estado_ped_prod->entidad = 'ProductoPedido';
-			$estado_ped_prod->usuarioCreador = $usuario;
+			$estado_ped_prod->usuarioCreador = $usuario->nombre;
 			$estado_ped_prod->guardarEstado();
 
-			$pedido->tiempoEstimado = $tiempoEstimado > $pedido->tiempoEstimado ? $tiempoEstimado : $pedido->tiempoEstimado;
-
 			$productoPedido->tiempoEstimado = $tiempoEstimado;
+			ProductoPedido::ModificarProductoPedido($productoPedido);
 
-			Pedido::ModificarUno($pedido);
-			ProductoPedido::ModificarUno($productoPedido);
+			$usuario = Usuario::obtenerUsuario($usuario->nombre);
+			$estado_ped_prod = new Estado();
+			$estado_ped_prod->idEntidad = $usuario->id;
+			$estado_ped_prod->descripcion = STATUS_USUARIO_OCUPADO;
+			$estado_ped_prod->entidad = 'Usuario';
+			$estado_ped_prod->usuarioCreador = $usuario->nombre;
+			$estado_ped_prod->guardarEstado();
+
+			$mensaje = 'El pedido está ahora en preparación';
 		}
 
-		
-		$estado_pedido = new Estado();
-		$estado_pedido->idEntidad = $id;
-		$estado_pedido->descripcion = Estado::getEstadoDefaultPedido();
-		$estado_pedido->entidad = 'Pedido';
-		$estado_pedido->usuarioCreador = $usuario;
-		$estado_pedido->guardarEstado();
-		
-		
-		$pedido->tomarPedido($idProductoPedido);
+		$payload = json_encode(array("mensaje" => $mensaje));
 
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+	public static function EntregarPedido($request, $response, $args){
+		$mensaje = 'Ha habido un error';
+		$parametros = $request->getParsedBody();
+
+		$codigoPedido = $parametros['codigo'];
+		$idProductoPedido = $parametros['idProductoPedido'];
+		
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$usuario = AutentificadorJWT::ObtenerData($token);
+
+		$productoPedido = ProductoPedido::obtenerProductoPedido($idProductoPedido);
+		$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
+		if ($usuario->rol == 'socio' || $productoPedido->producto->rolEncargado == $usuario->rol) {
+
+			$estado_ped_prod = new Estado();
+			$estado_ped_prod->idEntidad = $idProductoPedido;
+			$estado_ped_prod->descripcion = STATUS_PEDIDO_LISTO;
+			$estado_ped_prod->entidad = 'ProductoPedido';
+			$estado_ped_prod->usuarioCreador = $usuario->nombre;
+			$estado_ped_prod->guardarEstado();
+
+
+			$usuario = Usuario::obtenerUsuario($usuario->nombre);
+			$estado_ped_prod = new Estado();
+			$estado_ped_prod->idEntidad = $usuario->id;
+			$estado_ped_prod->descripcion = STATUS_USUARIO_DEFAULT;
+			$estado_ped_prod->entidad = 'Usuario';
+			$estado_ped_prod->usuarioCreador = $usuario->nombre;
+			$estado_ped_prod->guardarEstado();
+
+
+			$pedido = Pedido::ObtenerPedido($codigoPedido);
+
+			if (!$pedido->estaPendiente()) {
+				$estado_pedido = new Estado();
+				$estado_pedido->idEntidad = $pedido->id;
+				$estado_pedido->descripcion = STATUS_PEDIDO_LISTO;
+				$estado_pedido->entidad = 'Pedido';
+				$estado_pedido->usuarioCreador = $usuario->nombre;
+				$estado_pedido->guardarEstado();
+
+				$mensaje = 'Se completó el pedido ' . $pedido->codigo;
+			}
+			else {
+				$mensaje = 'Se completó la preparación del producto ' . $productoPedido->producto->nombre;
+			}
+			
+		}
+
+		$payload = json_encode(array("mensaje" => $mensaje));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
 	}
 }

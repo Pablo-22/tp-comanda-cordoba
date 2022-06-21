@@ -32,7 +32,7 @@ class Producto
         return $objAccesoDatos->obtenerUltimoId();
     }
 
-    public static function obtenerTodos()
+    public static function ObtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -100,4 +100,21 @@ class Producto
         $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
         $consulta->execute();
     }
+
+
+	public static function obtenerProductosPorRol($rol)
+	{
+		$objAccesoDatos = AccesoDatos::obtenerInstancia();
+		$consulta = $objAccesoDatos->prepararConsulta("
+			SELECT P.id, 
+				P.nombre, 
+				P.tiempoEstimado, 
+				P.precio, 
+				R.descripcion as rolEncargado
+			FROM productos P
+				JOIN roles R ON R.id = P.idRolEncargado
+			WHERE R.descripcion = :rol
+		");
+		$consulta->bindValue(':rol', $rol, PDO::PARAM_INT);
+	}
 }

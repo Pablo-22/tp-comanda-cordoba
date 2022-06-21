@@ -38,6 +38,7 @@ class ProductoPedido
                 PP.cantidad, 
                 PP.idProducto,
                 PR.nombre AS nombreProducto,
+				PP.tiempoEstimado,
 				E.descripcion AS estado
             FROM productos_pedidos PP
                 JOIN productos PR ON PR.id = PP.idProducto
@@ -61,5 +62,60 @@ class ProductoPedido
         $consulta->execute();
 
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'ProductoPedido');
+    }
+
+	public static function obtenerProductoPedido($idProductoPedido) {
+		$objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            SELECT PP.id, 
+                PS.codigo AS codigoPedido, 
+                PP.cantidad, 
+                PP.idProducto,
+                PR.nombre AS nombreProducto,
+				PP.tiempoEstimado,
+				E.descripcion AS estado
+            FROM productos_pedidos PP
+                JOIN productos PR ON PR.id = PP.idProducto
+				JOIN pedidos PS ON PS.id = PP.idPedido
+
+				LEFT JOIN ( -- Obtener el último estado
+					SELECT EP.idEntidad AS idProductoPedido, EP.descripcion
+					FROM estados_productos_pedidos EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS idProductoPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_productos_pedidos
+							GROUP BY idEntidad
+						) EP2 ON EP2.idProductoPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idProductoPedido = PP.id
+            WHERE PP.id = :idProductoPedido
+        ");
+        $consulta->bindValue(':idProductoPedido', $idProductoPedido, PDO::PARAM_STR);
+        $consulta->execute();
+
+        return $consulta->fetchObject('ProductoPedido');
+	}
+
+
+	public static function ModificarProductoPedido($productoPedido)
+    {
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("
+            UPDATE productos_pedidos PP
+				JOIN pedidos PS ON PS.codigo = :codigoPedido
+            SET PP.idPedido = PS.id, 
+				PP.cantidad = :cantidad, 
+				PP.idProducto = :idProducto,
+				PP.tiempoEstimado = :tiempoEstimado
+            WHERE PP.id = :id
+        ");
+        $consulta->bindValue(':codigoPedido', $productoPedido->codigoPedido, PDO::PARAM_STR);
+        $consulta->bindValue(':idProducto', $productoPedido->idProducto, PDO::PARAM_INT);
+        $consulta->bindValue(':id', $productoPedido->id, PDO::PARAM_INT);
+        $consulta->bindValue(':cantidad', $productoPedido->cantidad, PDO::PARAM_INT);
+        $consulta->bindValue(':tiempoEstimado', $productoPedido->tiempoEstimado, PDO::PARAM_INT);
+        $consulta->execute();
     }
 }

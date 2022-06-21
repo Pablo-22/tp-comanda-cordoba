@@ -31,7 +31,7 @@ class Usuario
         return $objAccesoDatos->obtenerUltimoId();
     }
 
-    public static function obtenerTodos()
+    public static function ObtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("

@@ -47,7 +47,7 @@ class UsuarioController extends Usuario implements IApiUsable
 
 	public function TraerTodos($request, $response, $args)
 	{
-		$lista = Usuario::obtenerTodos();
+		$lista = Usuario::ObtenerTodos();
 		$payload = json_encode(array("listaUsuario" => $lista));
 
 		$response->getBody()->write($payload);

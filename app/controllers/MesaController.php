@@ -50,7 +50,7 @@ class MesaController extends Mesa implements IApiUsable
 
 	public function TraerTodos($request, $response, $args)
 	{
-		$lista = Mesa::obtenerTodos();
+		$lista = Mesa::ObtenerTodos();
 		$payload = json_encode(array("listaMesa" => $lista));
 
 		$response->getBody()->write($payload);

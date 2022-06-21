@@ -11,7 +11,7 @@ class Pedido
 	public $estado;
 	public $tiempoEstimado;
 
-    public function crearPedido()
+    public function CrearPedidoDB()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -34,7 +34,7 @@ class Pedido
         return $objAccesoDatos->obtenerUltimoId();
     }
 
-    public static function obtenerTodos()
+    public static function ObtenerTodosDB()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -65,7 +65,7 @@ class Pedido
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
     }
 
-    public static function obtenerPedido($codigo)
+    public static function ObtenerPedidoDB($codigo)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -75,8 +75,8 @@ class Pedido
                 M.codigo as codigoMesa,
                 P.nombreCliente,
                 E.descripcion as estado
-			FROM pedidos M
-                JOIN mesas R ON M.id = P.idMesa
+			FROM pedidos P
+                JOIN mesas M ON M.id = P.idMesa
 
 				JOIN ( -- Obtener el último estado de cada pedido
 					SELECT EP.idEntidad AS IdPedido, EP.descripcion
@@ -98,7 +98,7 @@ class Pedido
         return $consulta->fetchObject('Pedido');
     }
 
-	public static function obtenerPedidosPendientes()
+	public static function ObtenerPedidosPendientesDB()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -130,20 +130,19 @@ class Pedido
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
     }
 
-    public static function modificarPedido($pedido)
+    public static function ModificarPedidoDB($pedido)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
-            UPDATE pedidos 
+            UPDATE pedidos P
+				JOIN mesas M ON M.id = :codigoMesa
             SET P.codigo = :codigo, 
                 P.rutaImagen = :rutaImagen, 
                 P.idMesa = M.id,
                 P.nombreCliente = :nombreCliente
-            FROM pedidos P
-                JOIN mesas R ON M.id = :codigoMesa
             WHERE P.id = :id
         ");
-        $consulta->bindValue(':pedido', $pedido->codigo, PDO::PARAM_STR);
+        $consulta->bindValue(':codigo', $pedido->codigo, PDO::PARAM_STR);
         $consulta->bindValue(':rutaImagen', $pedido->rutaImagen);
         $consulta->bindValue(':codigoMesa', $pedido->codigoMesa, PDO::PARAM_STR);
         $consulta->bindValue(':nombreCliente', $pedido->nombreCliente, PDO::PARAM_STR);
@@ -151,7 +150,7 @@ class Pedido
         $consulta->execute();
     }
 
-    public static function borrarPedido($id)
+    public static function BorrarPedidoDB($id)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
@@ -162,4 +161,77 @@ class Pedido
         $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
         $consulta->execute();
     }
+
+	public static function ObtenerPedidosPorMesa($codigoMesa)
+	{
+		$objAccesoDatos = AccesoDatos::obtenerInstancia();
+		$consulta = $objAccesoDatos->prepararConsulta("
+			SELECT P.id, 
+				P.codigo, 
+				P.rutaImagen, 
+				M.codigo as codigoMesa,
+				P.nombreCliente,
+				E.descripcion as estado
+			FROM pedidos P
+				JOIN mesas M ON M.id = P.idMesa
+				LEFT JOIN ( -- Obtener el último estado de cada pedido
+					SELECT EP.idEntidad AS IdPedido, EP.descripcion
+					FROM estados_pedidos EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS IdPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_pedidos
+							GROUP BY idEntidad
+						) EP2 ON EP2.IdPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.IdPedido = P.id
+			WHERE M.codigo = :codigoMesa
+		");
+
+		$consulta->bindValue(':codigoMesa', $codigoMesa, PDO::PARAM_STR);
+		$consulta->execute();
+		return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
+	}
+
+	public static function ObtenerPedido($codigoPedido) {
+		$pedido = Pedido::ObtenerPedidoDB($codigoPedido);
+
+		$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($codigoPedido);
+		foreach ($pedido->productosPedidos as $producto) {
+			$producto->producto = Producto::obtenerProducto($producto->idProducto);
+		}
+		$pedido->tiempoEstimado = max(array_map(function($productoPedido) {
+			return $productoPedido->tiempoEstimado;
+		}, $pedido->productosPedidos));
+
+		return $pedido;
+	}
+
+	public static function ObtenerTodos(){
+		$lista = Pedido::ObtenerTodosDB();
+
+		foreach ($lista as $pedido) {
+			$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($pedido->codigo);
+			foreach ($pedido->productosPedidos as $producto) {
+				$producto->producto = Producto::obtenerProducto($producto->idProducto);
+			}
+
+			$pedido->tiempoEstimado = max(array_map(function($productoPedido) {
+				return $productoPedido->tiempoEstimado;
+			}, $pedido->productosPedidos));
+		}
+
+		return $lista;
+	}
+
+
+	public function estaPendiente() {
+		foreach ($this->productosPedidos as $productoPedido) {
+			if ($productoPedido->estado != 'Pendiente') {
+				return FALSE;
+			}
+		}
+		return TRUE;
+	}
 }
