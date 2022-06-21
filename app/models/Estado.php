@@ -9,7 +9,10 @@ define("STATUS_MESA_CERRADA", "Cerrada");
 
 define("STATUS_PEDIDO_DEFAULT", "Pendiente");
 define("STATUS_PEDIDO_EN_PREPARACION", "En preparación");
-define("STATUS_PEDIDO_LISTO", "Listo");
+define("STATUS_PEDIDO_LISTO_PARA_SERVIR", "Listo para servir");
+
+
+define("STATUS_PRODUCTO_LISTO", "Listo");
 
 
 define("STATUS_USUARIO_DEFAULT", "Libre");

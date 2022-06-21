@@ -202,7 +202,7 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public static function EntregarPedido($request, $response, $args){
+	public static function TerminarPreparacionProducto($request, $response, $args){
 		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
 
@@ -216,40 +216,43 @@ class PedidoController extends Pedido implements IApiUsable
 		$productoPedido = ProductoPedido::obtenerProductoPedido($idProductoPedido);
 		$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
 		if ($usuario->rol == 'socio' || $productoPedido->producto->rolEncargado == $usuario->rol) {
+			if ($productoPedido->estado == STATUS_PEDIDO_EN_PREPARACION) {
 
-			$estado_ped_prod = new Estado();
-			$estado_ped_prod->idEntidad = $idProductoPedido;
-			$estado_ped_prod->descripcion = STATUS_PEDIDO_LISTO;
-			$estado_ped_prod->entidad = 'ProductoPedido';
-			$estado_ped_prod->usuarioCreador = $usuario->nombre;
-			$estado_ped_prod->guardarEstado();
-
-
-			$usuario = Usuario::obtenerUsuario($usuario->nombre);
-			$estado_ped_prod = new Estado();
-			$estado_ped_prod->idEntidad = $usuario->id;
-			$estado_ped_prod->descripcion = STATUS_USUARIO_DEFAULT;
-			$estado_ped_prod->entidad = 'Usuario';
-			$estado_ped_prod->usuarioCreador = $usuario->nombre;
-			$estado_ped_prod->guardarEstado();
+				$estado_ped_prod = new Estado();
+				$estado_ped_prod->idEntidad = $idProductoPedido;
+				$estado_ped_prod->descripcion = STATUS_PRODUCTO_LISTO;
+				$estado_ped_prod->entidad = 'ProductoPedido';
+				$estado_ped_prod->usuarioCreador = $usuario->nombre;
+				$estado_ped_prod->guardarEstado();
 
 
-			$pedido = Pedido::ObtenerPedido($codigoPedido);
+				$usuario = Usuario::obtenerUsuario($usuario->nombre);
+				$estado_ped_prod = new Estado();
+				$estado_ped_prod->idEntidad = $usuario->id;
+				$estado_ped_prod->descripcion = STATUS_USUARIO_DEFAULT;
+				$estado_ped_prod->entidad = 'Usuario';
+				$estado_ped_prod->usuarioCreador = $usuario->nombre;
+				$estado_ped_prod->guardarEstado();
 
-			if (!$pedido->estaPendiente()) {
-				$estado_pedido = new Estado();
-				$estado_pedido->idEntidad = $pedido->id;
-				$estado_pedido->descripcion = STATUS_PEDIDO_LISTO;
-				$estado_pedido->entidad = 'Pedido';
-				$estado_pedido->usuarioCreador = $usuario->nombre;
-				$estado_pedido->guardarEstado();
 
-				$mensaje = 'Se completó el pedido ' . $pedido->codigo;
+				$pedido = Pedido::ObtenerPedido($codigoPedido);
+
+				if ($pedido->estaListo()) {
+					$estado_pedido = new Estado();
+					$estado_pedido->idEntidad = $pedido->id;
+					$estado_pedido->descripcion = STATUS_PEDIDO_LISTO_PARA_SERVIR;
+					$estado_pedido->entidad = 'Pedido';
+					$estado_pedido->usuarioCreador = $usuario->nombre;
+					$estado_pedido->guardarEstado();
+
+					$mensaje = 'Se completó el pedido ' . $pedido->codigo;
+				}
+				else {
+					$mensaje = 'Se completó la preparación del producto ' . $productoPedido->producto->nombre;
+				}
+			} else {
+				$mensaje = 'El producto no está en preparación';
 			}
-			else {
-				$mensaje = 'Se completó la preparación del producto ' . $productoPedido->producto->nombre;
-			}
-			
 		}
 
 		$payload = json_encode(array("mensaje" => $mensaje));

@@ -226,12 +226,14 @@ class Pedido
 	}
 
 
-	public function estaPendiente() {
+	public function estaListo() {
+		$output = TRUE;
 		foreach ($this->productosPedidos as $productoPedido) {
-			if ($productoPedido->estado != 'Pendiente') {
-				return FALSE;
+			if ($productoPedido->estado != STATUS_PRODUCTO_LISTO) {
+				$output = FALSE;
+				break;
 			}
 		}
-		return TRUE;
+		return $output;
 	}
 }

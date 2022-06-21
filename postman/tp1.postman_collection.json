@@ -1,0 +1,738 @@
+{
+	"info": {
+		"_postman_id": "5b44c278-cf75-41a4-9116-39a13b54f432",
+		"name": "tp1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18114262"
+	},
+	"item": [
+		{
+			"name": "Pedidos",
+			"item": [
+				{
+					"name": "TraerPedidosPendientes",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUxNzEzMzYsImV4cCI6MTY1NTIzMTMzNiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.qvHGj6HaY6tiDwdjD2VpGO7mnTuT3N8dxJLsAdu7pIo",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:666/pedidos/Pendientes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"pedidos",
+								"Pendientes"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUxNzEzMzYsImV4cCI6MTY1NTIzMTMzNiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.qvHGj6HaY6tiDwdjD2VpGO7mnTuT3N8dxJLsAdu7pIo",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TraerPedido",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTU3NTczNTQsImV4cCI6MTY1NTgxNzM1NCwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.hAkqpyX1-77vbXk0EXFg6AYxIjkG_ES_B14C3Rwaj1o",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUxNzEzMzYsImV4cCI6MTY1NTIzMTMzNiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.qvHGj6HaY6tiDwdjD2VpGO7mnTuT3N8dxJLsAdu7pIo",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:666/pedidos/A0003",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"pedidos",
+								"A0003"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TraerPedidos",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUxNzEzMzYsImV4cCI6MTY1NTIzMTMzNiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.qvHGj6HaY6tiDwdjD2VpGO7mnTuT3N8dxJLsAdu7pIo",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:666/pedidos/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"pedidos",
+								""
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUxNzEzMzYsImV4cCI6MTY1NTIzMTMzNiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.qvHGj6HaY6tiDwdjD2VpGO7mnTuT3N8dxJLsAdu7pIo",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CargarPedido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTU3NTczNTQsImV4cCI6MTY1NTgxNzM1NCwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.hAkqpyX1-77vbXk0EXFg6AYxIjkG_ES_B14C3Rwaj1o",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "codigo",
+									"value": "A0003",
+									"type": "text"
+								},
+								{
+									"key": "codigoMesa",
+									"value": "A0004",
+									"type": "text"
+								},
+								{
+									"key": "nombreCliente",
+									"value": "Pedro",
+									"type": "text"
+								},
+								{
+									"key": "archivo",
+									"type": "file",
+									"src": "/C:/Users/PabloCordoba/Downloads/nota-de-pedido.jpg"
+								},
+								{
+									"key": "producto[0]",
+									"value": "3",
+									"type": "text"
+								},
+								{
+									"key": "cantidad[0]",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "producto[1]",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "cantidad[1]",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:666/pedidos/CargarUno",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"pedidos",
+								"CargarUno"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TomarPedido",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTU3NTczNTQsImV4cCI6MTY1NTgxNzM1NCwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.hAkqpyX1-77vbXk0EXFg6AYxIjkG_ES_B14C3Rwaj1o",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "codigo",
+									"value": "A0003",
+									"type": "text"
+								},
+								{
+									"key": "idProductoPedido",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "tiempoEstimado",
+									"value": "20",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:666/pedidos/TomarPedido",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"pedidos",
+								"TomarPedido"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TerminarPreparacionProducto",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTU3NTczNTQsImV4cCI6MTY1NTgxNzM1NCwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.hAkqpyX1-77vbXk0EXFg6AYxIjkG_ES_B14C3Rwaj1o",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "codigo",
+									"value": "A0003",
+									"type": "text"
+								},
+								{
+									"key": "idProductoPedido",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:666/pedidos/TerminarPreparacionProducto",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"pedidos",
+								"TerminarPreparacionProducto"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Mesas",
+			"item": [
+				{
+					"name": "TraerMesas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTU3NTczNTQsImV4cCI6MTY1NTgxNzM1NCwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.hAkqpyX1-77vbXk0EXFg6AYxIjkG_ES_B14C3Rwaj1o",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUyNDM4OTUsImV4cCI6MTY1NTMwMzg5NSwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.sBpu80L73IQhjEf1lRcjkkFVexuF0Bj93qfcqFjp6Qk",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:666/mesas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"mesas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CargarMesa",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUzNDc4NDAsImV4cCI6MTY1NTQwNzg0MCwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.UcRDfBduMq59Fw_B3eBiDdtCb3tPXFYkF9oTGEKCnkY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "codigo",
+									"value": "A0008",
+									"type": "text"
+								},
+								{
+									"key": "capacidad",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "imagen",
+									"value": "socio",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:666/mesas/CargarUno",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"mesas",
+								"CargarUno"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Usuarios",
+			"item": [
+				{
+					"name": "CargarUsuario",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "etJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUyNDcwOTYsImV4cCI6MTY1NTMwNzA5NiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.0rGiYl_5ZhCOvHStEr7zzrKXnMpVnyFgWFaANZpHqwA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUwNzkwNjEsImV4cCI6MTY1NTEzOTA2MSwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.XKoYzNg0hlAoGfrNT14vYxX3aZvr712n_nN4xbpWkAQ",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "nombre",
+									"value": "Juan",
+									"type": "text"
+								},
+								{
+									"key": "clave",
+									"value": "12345",
+									"type": "text"
+								},
+								{
+									"key": "rol",
+									"value": "bartender",
+									"type": "text"
+								},
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUwNzI0NTIsImV4cCI6MTY1NTEzMjQ1MiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOlsiUGFibG8iLCJzb2NpbyJdLCJhcHAiOiJUUDEifQ.Tq1aurxvkit4q6wpJkNHcEa9wIRtkHZWfrUjXf25hps",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:666/usuarios/CargarUno",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"usuarios",
+								"CargarUno"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LoginUsuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "nombre",
+									"value": "Pablo",
+									"type": "text"
+								},
+								{
+									"key": "clave",
+									"value": "12345",
+									"type": "text"
+								},
+								{
+									"key": "rol",
+									"value": "socio",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:666/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ModificarUsuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "nombre",
+									"value": "JuanManuel",
+									"type": "text"
+								},
+								{
+									"key": "clave",
+									"value": "12345",
+									"type": "text"
+								},
+								{
+									"key": "rol",
+									"value": "socio",
+									"type": "text"
+								},
+								{
+									"key": "id",
+									"value": "7",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:666/usuarios/ModificarUno",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"usuarios",
+								"ModificarUno"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TraerUnUsuario",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUxNzEzMzYsImV4cCI6MTY1NTIzMTMzNiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.qvHGj6HaY6tiDwdjD2VpGO7mnTuT3N8dxJLsAdu7pIo",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:666/usuarios/Pablo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"usuarios",
+								"Pablo"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUxNzEzMzYsImV4cCI6MTY1NTIzMTMzNiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.qvHGj6HaY6tiDwdjD2VpGO7mnTuT3N8dxJLsAdu7pIo",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TraerUsuarios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTU3NTczNTQsImV4cCI6MTY1NTgxNzM1NCwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.hAkqpyX1-77vbXk0EXFg6AYxIjkG_ES_B14C3Rwaj1o",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUyNDM4OTUsImV4cCI6MTY1NTMwMzg5NSwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.sBpu80L73IQhjEf1lRcjkkFVexuF0Bj93qfcqFjp6Qk",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:666/usuarios",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BorrarUnUsuario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "6",
+									"type": "text"
+								},
+								{
+									"key": "clave",
+									"value": "12345",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "rol",
+									"value": "socio",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:666/usuarios/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"usuarios",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Productos",
+			"item": [
+				{
+					"name": "CargarProducto",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "etJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUyNDcwOTYsImV4cCI6MTY1NTMwNzA5NiwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.0rGiYl_5ZhCOvHStEr7zzrKXnMpVnyFgWFaANZpHqwA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTUwNzkwNjEsImV4cCI6MTY1NTEzOTA2MSwiYXVkIjoiNWJkZmQ1MTk2MjQ0ZjNjMzg1YTRmMTVhMTgzODc4ZWJmMGEyZGE1ZSIsImRhdGEiOnsiaWQiOjExLCJub21icmUiOiJQYWJsbyIsImNsYXZlIjpudWxsLCJyb2wiOiJzb2NpbyJ9LCJhcHAiOiJUUDEifQ.XKoYzNg0hlAoGfrNT14vYxX3aZvr712n_nN4xbpWkAQ",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "nombre",
+									"value": "Agua mineral sin gas",
+									"type": "text"
+								},
+								{
+									"key": "tiempoEstimado",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "rolEncargado",
+									"value": "bartender",
+									"type": "text"
+								},
+								{
+									"key": "precio",
+									"value": "150",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:666/productos/CargarUno",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "666",
+							"path": [
+								"productos",
+								"CargarUno"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
