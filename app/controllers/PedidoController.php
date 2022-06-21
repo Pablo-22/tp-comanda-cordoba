@@ -227,6 +227,65 @@ class PedidoController extends Pedido implements IApiUsable
 
 
 				$usuario = Usuario::obtenerUsuario($usuario->nombre);
+				$estado_usuario = new Estado();
+				$estado_usuario->idEntidad = $usuario->id;
+				$estado_usuario->descripcion = STATUS_USUARIO_DEFAULT;
+				$estado_usuario->entidad = 'Usuario';
+				$estado_usuario->usuarioCreador = $usuario->nombre;
+				$estado_usuario->guardarEstado();
+
+
+				$pedido = Pedido::ObtenerPedido($codigoPedido);
+
+				if ($pedido->estaListo()) {
+					$estado_pedido = new Estado();
+					$estado_pedido->idEntidad = $pedido->id;
+					$estado_pedido->descripcion = STATUS_PEDIDO_LISTO_PARA_SERVIR;
+					$estado_pedido->entidad = 'Pedido';
+					$estado_pedido->usuarioCreador = $usuario->nombre;
+					$estado_pedido->guardarEstado();
+
+					$mensaje = 'Se completó el pedido ' . $pedido->codigo;
+				}
+				else {
+					$mensaje = 'Se completó la preparación del producto ' . $productoPedido->producto->nombre;
+				}
+			} else {
+				$mensaje = 'El producto no está en preparación';
+			}
+		}
+
+		$payload = json_encode(array("mensaje" => $mensaje));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+
+	public static function EntregarPedido($request, $response, $args){
+		$mensaje = 'Ha habido un error';
+		$parametros = $request->getParsedBody();
+
+		$codigoPedido = $parametros['codigo'];
+		
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$usuario = AutentificadorJWT::ObtenerData($token);
+
+		$pedido = Pedido::ObtenerPedido($codigoPedido);
+		if ($usuario->rol == 'socio' || $usuario->rol == 'mozo') {
+			if ($productoPedido->estado == STATUS_PEDIDO_LISTO_PARA_SERVIR) {
+
+				$estado_ped_prod = new Estado();
+				$estado_ped_prod->idEntidad = $idProductoPedido;
+				$estado_ped_prod->descripcion = STATUS_PRODUCTO_LISTO;
+				$estado_ped_prod->entidad = 'ProductoPedido';
+				$estado_ped_prod->usuarioCreador = $usuario->nombre;
+				$estado_ped_prod->guardarEstado();
+
+
+				$usuario = Usuario::obtenerUsuario($usuario->nombre);
 				$estado_ped_prod = new Estado();
 				$estado_ped_prod->idEntidad = $usuario->id;
 				$estado_ped_prod->descripcion = STATUS_USUARIO_DEFAULT;

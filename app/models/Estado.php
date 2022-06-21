@@ -2,7 +2,7 @@
 
 define("STATUS_MESA_DEFAULT", "Libre");
 define("STATUS_MESA_ESPERANDO", "Con cliente esperando pedido");
-define("STATUS_MESA_COMIENDO", "Con cliente esperando pedido");
+define("STATUS_MESA_COMIENDO", "Con cliente comiendo pedido");
 define("STATUS_MESA_PAGANDO", "Con cliente pagando pedido");
 define("STATUS_MESA_CERRADA", "Cerrada");
 
