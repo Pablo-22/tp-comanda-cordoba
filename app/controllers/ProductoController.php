@@ -78,4 +78,31 @@ class ProductoController extends Producto implements IApiUsable
 		return $response
 			->withHeader('Content-Type', 'application/json');
 	}
+
+	public function ImportarCSV($request, $response, $args){
+		$path = '..\\tmpCSV\\' . date("d-m-y His") . '.csv';
+		$mensaje = ArchivoController::SaveFile($path, true, 500000, ['.csv']);
+
+		$data = ArchivoController::ReadCsv($path);
+
+		$arrayProductos = array();
+
+		foreach ($data as $item) {
+			$prd = new Producto();
+			$prd->nombre = $item[0];
+			$prd->tiempoEstimado = $item[1];
+			$prd->precio = $item[2];
+			$prd->rolEncargado = $item[3];
+
+			array_push($arrayProductos, $prd);
+		}
+
+		Producto::crearProductosDB($arrayProductos);
+
+		$payload = json_encode(array("mensaje" => $mensaje));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
 }

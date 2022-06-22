@@ -308,4 +308,50 @@ class PedidoController extends Pedido implements IApiUsable
 		return $response
 			->withHeader('Content-Type', 'application/json');
 	}
+
+
+
+	public static function CobrarPedido($request, $response, $args){
+		$mensaje = 'Ha habido un error';
+		$parametros = $request->getParsedBody();
+
+		$codigoPedido = $parametros['codigo'];
+		
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$usuario = AutentificadorJWT::ObtenerData($token);
+
+		$pedido = Pedido::ObtenerPedido($codigoPedido);
+		$mesa = Mesa::ObtenerMesa($pedido->codigoMesa);
+		if ($usuario->rol == 'socio' || $usuario->rol == 'mozo') {
+			if ($pedido->estado == STATUS_PEDIDO_ENTREGADO) {
+
+				$estado_pedido = new Estado();
+				$estado_pedido->idEntidad = $pedido->id;
+				$estado_pedido->descripcion = STATUS_PEDIDO_PAGADO;
+				$estado_pedido->entidad = 'Pedido';
+				$estado_pedido->usuarioCreador = $usuario->nombre;
+				$estado_pedido->guardarEstado();
+
+				$estado_mesa = new Estado();
+				$estado_mesa->idEntidad = $mesa->id;
+				$estado_mesa->descripcion = STATUS_MESA_PAGANDO;
+				$estado_mesa->entidad = 'Mesa';
+				$estado_mesa->usuarioCreador = $usuario->nombre;
+				$estado_mesa->guardarEstado();
+
+				$mensaje = 'Se pagó el pedido ' . $pedido->codigo;
+			} else {
+				$mensaje = 'El pedido no fue entregado';
+			}
+		} else {
+			$mensaje = 'Usuario no autorizado';
+		}
+
+		$payload = json_encode(array("mensaje" => $mensaje));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
 }

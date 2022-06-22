@@ -44,18 +44,6 @@ class ArchivoController {
         $strContent = json_encode($fileContent, JSON_PRETTY_PRINT);
         Datos::Guardar($strContent, $pathToFile);
     }
-
-    // public static function CrearDir($path){
-    //     $dirArray = explode('\\', $path);
-    //     $auxPath = '';
-    //     for ($i=0; $i < count($dirArray); $i++) { 
-    //         $auxPath .= $dirArray[$i] . '\\';
-    //         if(!is_dir($auxPath)) {
-    //             mkdir($auxPath);
-    //         }
-    //     }
-    // }
-
     
     public static function CreateDir($path){
         $dirArray = explode('\\', $path);
@@ -94,13 +82,13 @@ class ArchivoController {
             
             //VERIFICO QUE EL ARCHIVO NO EXISTA
             if (!$overwrite && file_exists($destino)) {
-                echo "El archivo ya existe. Verifique!!!";
+                return "El archivo ya existe. Verifique!!!";
                 $uploadOk = FALSE;
             }
             
             //VERIFICO EL TAMAÑO MAXIMO QUE PERMITO SUBIR
             if ($maxSize && $_FILES["archivo"]["size"] > $maxSize) {
-                echo "El archivo es demasiado grande. Verifique!!!";
+                return "El archivo es demasiado grande. Verifique!!!";
                 $uploadOk = FALSE;
             }
 
@@ -109,7 +97,7 @@ class ArchivoController {
             
             //SOLO PERMITO CIERTAS EXTENSIONES
             if(!in_array($tipoArchivo, $allowedExtensions)) {
-                echo "La extensión del archivo no está permitida";
+                return "La extensión del archivo no está permitida";
                 $uploadOk = FALSE;
             }
 
@@ -119,17 +107,54 @@ class ArchivoController {
         //VERIFICO SI HUBO ALGUN ERROR, CHEQUEANDO $uploadOk
         if ($uploadOk === FALSE) {
             
-            echo "<br/>NO SE PUDO SUBIR EL ARCHIVO.";
+            return "<br/>NO SE PUDO SUBIR EL ARCHIVO.";
             
         } else {
-			var_dump($destino);
+			//var_dump($destino);
             //MUEVO EL ARCHIVO DEL TEMPORAL AL DESTINO FINAL
             if (move_uploaded_file($_FILES["archivo"]["tmp_name"], $destino)) {
-                echo "<br/>El archivo ". basename( $_FILES["archivo"]["name"]). " ha sido subido exitosamente.";
+                return "<br/>El archivo ". basename( $_FILES["archivo"]["name"]). " ha sido subido exitosamente.";
             } else {
-                echo "<br/>Lamentablemente ocurri&oacute; un error y no se pudo subir el archivo.";
+                return "<br/>Lamentablemente ocurri&oacute; un error y no se pudo subir el archivo.";
             }
         }
     }
+
+
+	public static function CsvToArray($csvStr) {
+		echo $csvStr;
+		$finalArray = array();
+		if ($csvStr) {
+			$finalArray = explode(PHP_EOL, $csvStr);
+
+			foreach($finalArray as $key => $row){
+				if ($row) {   
+					$finalArray[$key] = explode(',', $row);
+				}
+			}
+		}
+
+		return $finalArray;
+	} 
+
+	public static function ReadCsv($path){
+		$rawCsv = ArchivoController::LeerArchivo($path);
+		$outputArray = ArchivoController::CsvToArray($rawCsv);
+
+		return $outputArray;
+	}
+
+	public static function ToCsv($matrix) {
+		$csv = '';
+		//echo var_dump($matrix);
+		foreach ($matrix as $row) {
+			foreach ($row as $value) {
+				$csv .= $value . ',';
+			}
+			$csv = substr($csv, 0, -1); //Remove last comma
+			$csv .= PHP_EOL; //Add line break at the end
+		}
+		return $csv;
+	}
 
 }

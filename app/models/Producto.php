@@ -118,4 +118,32 @@ class Producto
 		");
 		$consulta->bindValue(':rol', $rol, PDO::PARAM_INT);
 	}
+
+	public static function crearProductosDB($productos)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            INSERT INTO productos (nombre, tiempoEstimado, precio, idRolEncargado) 
+            SELECT 
+                :nombreProducto AS nombre,
+                :tiempoEstimado AS tiempoEstimado,
+                :precio AS precio,
+                R.id AS idRolEncargado
+            FROM roles R
+            WHERE R.descripcion = :rolEncargado
+            LIMIT 1
+        ");
+
+		
+		foreach ($productos as $producto) {
+			var_dump($producto);
+			$consulta->bindValue(':nombreProducto', $producto->nombre, PDO::PARAM_STR);
+			$consulta->bindValue(':tiempoEstimado', $producto->tiempoEstimado);
+			$consulta->bindValue(':precio', $producto->precio);
+			$consulta->bindValue(':rolEncargado', $producto->rolEncargado, PDO::PARAM_STR);
+			$consulta->execute();
+		}
+
+        return $objAccesoDatos->obtenerUltimoId();
+    }
 }

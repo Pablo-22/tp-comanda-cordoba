@@ -10,6 +10,7 @@ define("STATUS_PEDIDO_DEFAULT", "Pendiente");
 define("STATUS_PEDIDO_EN_PREPARACION", "En preparación");
 define("STATUS_PEDIDO_LISTO_PARA_SERVIR", "Listo para servir");
 define("STATUS_PEDIDO_ENTREGADO", "Pedido entregado");
+define("STATUS_PEDIDO_PAGADO", "Pedido pagado");
 
 
 define("STATUS_PRODUCTO_LISTO", "Listo");

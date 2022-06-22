@@ -8,6 +8,7 @@ class Pedido
     public $codigoMesa;
     public $nombreCliente;
 	public $productosPedidos;
+	public $precioTotal;
 	public $estado;
 	public $tiempoEstimado;
 
@@ -124,7 +125,7 @@ class Pedido
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.IdPedido = P.id
 			
-			WHERE E.Descripcion = 'Pendiente'
+			WHERE E.Descripcion NOT IN ('Pedido entregado', 'En preparación', 'Listo para servir')
         ");
         $consulta->execute();
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
@@ -201,8 +202,13 @@ class Pedido
 		foreach ($pedido->productosPedidos as $producto) {
 			$producto->producto = Producto::obtenerProducto($producto->idProducto);
 		}
+
 		$pedido->tiempoEstimado = max(array_map(function($productoPedido) {
 			return $productoPedido->tiempoEstimado;
+		}, $pedido->productosPedidos));
+
+		$pedido->precioTotal = array_sum(array_map(function($productoPedido) {
+			return $productoPedido->cantidad * $productoPedido->producto->precio;
 		}, $pedido->productosPedidos));
 
 		return $pedido;
@@ -219,6 +225,10 @@ class Pedido
 
 			$pedido->tiempoEstimado = max(array_map(function($productoPedido) {
 				return $productoPedido->tiempoEstimado;
+			}, $pedido->productosPedidos));
+
+			$pedido->precioTotal = array_sum(array_map(function($productoPedido) {
+				return $productoPedido->cantidad * $productoPedido->producto->precio;
 			}, $pedido->productosPedidos));
 		}
 

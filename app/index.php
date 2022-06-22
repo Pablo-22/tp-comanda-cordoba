@@ -54,6 +54,7 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->get('/{nombre}', \ProductoController::class . ':TraerUno');
     $group->post('/CargarUno', \ProductoController::class . ':CargarUno');
     $group->post('/ModificarUno', \ProductoController::class . ':ModificarUno');
+    $group->post('/ImportarCSV', \ProductoController::class . ':ImportarCSV');
     $group->delete('[/]', \ProductoController::class . ':BorrarUno');
 }); //->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
@@ -67,6 +68,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->post('/TerminarPreparacionProducto', \PedidoController::class . ':TerminarPreparacionProducto');
     $group->post('/EntregarPedido', \PedidoController::class . ':EntregarPedido');
     $group->post('/ModificarUno', \PedidoController::class . ':ModificarUno');
+    $group->post('/CobrarPedido', \PedidoController::class . ':CobrarPedido');
     $group->delete('[/]', \PedidoController::class . ':BorrarUno');
 });
 
