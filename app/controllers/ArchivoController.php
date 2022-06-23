@@ -139,6 +139,7 @@ class ArchivoController {
 
 	public static function ReadCsv($path){
 		$rawCsv = ArchivoController::LeerArchivo($path);
+		var_dump($rawCsv);
 		$outputArray = ArchivoController::CsvToArray($rawCsv);
 
 		return $outputArray;

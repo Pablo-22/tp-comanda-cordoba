@@ -43,10 +43,16 @@ $app->group('/login', function (RouteCollectorProxy $group) {
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{nombre}', \UsuarioController::class . ':TraerUno');
-    $group->post('/CargarUno', \UsuarioController::class . ':CargarUno');
-    $group->post('/ModificarUno', \UsuarioController::class . ':ModificarUno');
-    $group->delete('[/]', \UsuarioController::class . ':BorrarUno');
-})->add(\AutentificadorJWT::class . ':VerificarAcceso')->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+
+    $group->post('/CargarUno', \UsuarioController::class . ':CargarUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+
+    $group->post('/ModificarUno', \UsuarioController::class . ':ModificarUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+
+    $group->delete('[/]', \UsuarioController::class . ':BorrarUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+})->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
@@ -56,7 +62,7 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->post('/ModificarUno', \ProductoController::class . ':ModificarUno');
     $group->post('/ImportarCSV', \ProductoController::class . ':ImportarCSV');
     $group->delete('[/]', \ProductoController::class . ':BorrarUno');
-}); //->add(\AutentificadorJWT::class . ':VerificarAcceso');
+})->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
@@ -70,7 +76,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->post('/ModificarUno', \PedidoController::class . ':ModificarUno');
     $group->post('/CobrarPedido', \PedidoController::class . ':CobrarPedido');
     $group->delete('[/]', \PedidoController::class . ':BorrarUno');
-});
+})->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
@@ -78,8 +84,9 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
     $group->get('/{nombre}', \MesaController::class . ':TraerUno');
     $group->post('/CargarUno', \MesaController::class . ':CargarUno');
     $group->post('/ModificarUno', \MesaController::class . ':ModificarUno');
+    $group->post('/CerrarMesa', \MesaController::class . ':CerrarMesa');
     $group->delete('[/]', \MesaController::class . ':BorrarUno');
-});
+})->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
 $app->get('[/]', function (Request $request, Response $response) {    
