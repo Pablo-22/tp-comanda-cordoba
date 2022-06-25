@@ -32,7 +32,7 @@ class Log
 		return 'Ha iniciado sesión';
 	}
 
-	public static function obtenerDescripcionLogCrearPedidoDB(){
+	public static function obtenerDescripcionLogCrearPedido(){
 		return 'Ha creado un pedido';
 	}
 
@@ -46,6 +46,10 @@ class Log
 
 	public static function obtenerDescripcionLogTomarPedido($codPedido){
 		return 'Ha tomado el pedido ' . $codPedido;
+	}
+
+	public static function obtenerDescripcionLogTerminarPedido($codPedido){
+		return 'Ha terminado la preparación del producto ' . $codPedido;
 	}
 	
 	public static function obtenerDescripcionLogEntregarPedido($codPedido){

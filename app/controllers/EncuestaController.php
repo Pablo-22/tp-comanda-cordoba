@@ -9,16 +9,24 @@ class EncuestaController extends Encuesta implements IApiUsable
 	{
 		$parametros = $request->getParsedBody();
 
-		$nombre = $parametros['nombre'];
-		$clave = $parametros['clave'];
-		$rol = $parametros['rol'];
+		$codigoMesa = $parametros['codigoMesa'];
+		$codigoPedido = $parametros['codigoPedido'];
+		$puntuacionMesa = $parametros['puntuacionMesa'];
+		$puntuacionMozo = $parametros['puntuacionMozo'];
+		$puntuacionCocinero = $parametros['puntuacionCocinero'];
+		$puntuacionRestaurante = $parametros['puntuacionRestaurante'];
+		$descripcion = $parametros['descripcion'];
 
 		// Creamos el encuesta
-		$usr = new Encuesta();
-		$usr->nombre = $nombre;
-		$usr->clave = $clave;
-		$usr->rol = $rol;
-		$idEncuesta = $usr->crearEncuesta();
+		$encuesta = new Encuesta();
+		$encuesta->codigoMesa = $codigoMesa;
+		$encuesta->codigoPedido = $codigoPedido;
+		$encuesta->puntuacionCocinero = $puntuacionCocinero;
+		$encuesta->puntuacionMozo = $puntuacionMozo;
+		$encuesta->puntuacionMesa = $puntuacionMesa;
+		$encuesta->puntuacionRestaurante = $puntuacionRestaurante;
+		$encuesta->descripcion = $descripcion;
+		$idEncuesta = $encuesta->crearEncuesta();
 
 		$payload = json_encode(array("mensaje" => "Encuesta creada con exito"));
 
@@ -30,9 +38,8 @@ class EncuestaController extends Encuesta implements IApiUsable
 
 	public function TraerUno($request, $response, $args)
 	{
-		// Buscamos encuesta por nombre
-		$usr = $args['nombre'];
-		$encuesta = Encuesta::obtenerEncuesta($usr);
+		$encuesta = $args['id'];
+		$encuesta = Encuesta::obtenerEncuestaDB($encuesta);
 		$payload = json_encode($encuesta);
 
 		$response->getBody()->write($payload);
@@ -49,24 +56,42 @@ class EncuestaController extends Encuesta implements IApiUsable
 		return $response
 			->withHeader('Content-Type', 'application/json');
 	}
+
+	public function TraerMejoresComentarios($request, $response, $args)
+	{
+		$lista = Encuesta::ObtenerMejoresComentarios();
+
+		$payload = json_encode(array("listaEncuesta" => $lista));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
 	
 	public function ModificarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
-		$nombre = $parametros['nombre'];
-		$clave = $parametros['clave'];
-		$rol = $parametros['rol'];
-		$id = $parametros['id'];
+		$codigoMesa = $parametros['codigoMesa'];
+		$codigoPedido = $parametros['codigoPedido'];
+		$puntuacionMesa = $parametros['puntuacionMesa'];
+		$puntuacionMozo = $parametros['puntuacionMozo'];
+		$puntuacionCocinero = $parametros['puntuacionCocinero'];
+		$puntuacionRestaurante = $parametros['puntuacionRestaurante'];
+		$descripcion = $parametros['descripcion'];
 
 		// Creamos el encuesta
-		$usr = new Encuesta();
-		$usr->nombre = $nombre;
-		$usr->clave = $clave;
-		$usr->rol = $rol;
-		$usr->id = $id;
+		$encuesta = new Encuesta();
+		$encuesta->codigoMesa = $codigoMesa;
+		$encuesta->codigoPedido = $codigoPedido;
+		$encuesta->puntuacionCocinero = $puntuacionCocinero;
+		$encuesta->puntuacionMozo = $puntuacionMozo;
+		$encuesta->puntuacionMesa = $puntuacionMesa;
+		$encuesta->puntuacionRestaurante = $puntuacionRestaurante;
+		$encuesta->descripcion = $descripcion;
+		$idEncuesta = $encuesta->crearEncuesta();
 
-		$usr->modificarEncuesta();
+		$encuesta->modificarEncuesta();
 
 
 		$payload = json_encode(array("mensaje" => "Encuesta modificado con exito"));
@@ -84,30 +109,6 @@ class EncuestaController extends Encuesta implements IApiUsable
 		Encuesta::borrarEncuesta($id);
 
 		$payload = json_encode(array("mensaje" => "Encuesta borrado con exito"));
-
-		$response->getBody()->write($payload);
-		return $response
-			->withHeader('Content-Type', 'application/json');
-	}
-
-	public function VerificarCredenciales($request, $response, $args){
-		$parametros = $request->getParsedBody();
-		$nombreEncuesta = $parametros['nombre'];
-		$clave = $parametros['clave'];
-		$output = 'Credenciales incorrectas.';
-
-		$encuesta = Encuesta::obtenerEncuesta($nombreEncuesta, $clave);
-		if (password_verify($clave, $encuesta->clave)) {
-			$encuesta->clave = null;
-			$output = AutentificadorJWT::crearToken($encuesta);
-			
-			$log = new Log();
-			$log->idEncuestaCreador = $encuesta->id;
-			$log->descripcion = Log::obtenerDescripcionLogLogin();
-			$log->guardarLog();
-		}
-
-		$payload = json_encode(array("respuesta" => $output));
 
 		$response->getBody()->write($payload);
 		return $response

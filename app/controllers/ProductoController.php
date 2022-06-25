@@ -6,6 +6,11 @@ class ProductoController extends Producto implements IApiUsable
 {
 	public function CargarUno($request, $response, $args)
 	{
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$nombre = AutentificadorJWT::ObtenerData($token);
+
+
 		$parametros = $request->getParsedBody();
 
 		$nombre = $parametros['nombre'];
@@ -20,6 +25,11 @@ class ProductoController extends Producto implements IApiUsable
 		$prd->precio = $precio;
 		$prd->rolEncargado = $rolEncargado;
 		$prd->crearProducto();
+
+		$log = new Log();
+		$log->idUsuarioCreador = $usuario->id;
+		$log->descripcion = Log::obtenerDescripcionLogCargarProducto();
+		$log->guardarLog();
 
 		$payload = json_encode(array("mensaje" => "Producto creado con exito"));
 

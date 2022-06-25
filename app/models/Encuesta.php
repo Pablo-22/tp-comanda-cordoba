@@ -3,8 +3,10 @@
 class Encuesta
 {
     public $id;
-    public $idMesa;
-    public $idPedido;
+    public $codigoMesa;
+    public $mesa;
+    public $codigoPedido;
+    public $pedido;
     public $puntuacionMesa;
     public $puntuacionMozo;
     public $puntuacionCocinero;
@@ -62,19 +64,35 @@ class Encuesta
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Encuesta');
     }
 
-    public static function obtenerEncuesta($idMesa)
+	public static function ObtenerMejores()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            SELECT E.id
+			FROM encuestas E
+			ORDER BY SUM(E.puntuacionMesa + E.puntuacionMozo + E.puntuacionCocinero + E.puntuacionRestaurante) DESC
+			LIMIT 3
+        ");
+        $consulta->execute();
+
+        return $consulta->fetchAll();
+    }
+
+    public static function obtenerEncuestaDB($idMesa)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
 			SELECT E.id, 
-				E.idMesa, 
-				E.idPedido, 
+				M.codigo AS codigoMesa,, 
+				P.codigo AS codigoPedido, 
 				E.puntuacionMesa, 
 				E.puntuacionMozo,
 				E.puntuacionCocinero,
 				E.puntuacionRestaurante,
 				E.descripcion
 			FROM encuestas E
+				JOIN pedidos P ON P.id = E.idPedido
+				JOIN mesas M ON M.id = E.idMesa
 			WHERE E.Id = :idEncuesta
         ");
         $consulta->bindValue(':idEncuesta', $idEncuesta, PDO::PARAM_STR);
@@ -88,16 +106,25 @@ class Encuesta
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
             UPDATE encuestas  U
-			JOIN puntuacionMesaes R ON R.descripcion = :puntuacionMesa
-            SET U.idMesa = :encuesta, 
-                U.idPedido = :idPedido,
-                U.idRol = R.id
+            SET idMesa = (SELECT M.id FROM mesas M WHERE M.codigo = :codigoMesa), 
+				idPedido = (SELECT P.id FROM pedidos P WHERE P.codigo = :codigoPedido), 
+				puntuacionMesa = :puntuacionMesa, 
+				puntuacionMozo = :puntuacionMozo,
+				puntuacionCocinero = :puntuacionCocinero,
+				puntuacionRestaurante = :puntuacionRestaurante,
+				descripcion = :descripcion
             WHERE U.id = :id
         ");
-        $consulta->bindValue(':encuesta', $this->idMesa, PDO::PARAM_STR);
-        $consulta->bindValue(':idPedido', $this->idPedido, PDO::PARAM_STR);
-        $consulta->bindValue(':puntuacionMesa', $this->puntuacionMesa, PDO::PARAM_STR);
-        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
+
+		$consulta->bindvalue(':id', $this->id, PDO::PARAM_INT);
+		$consulta->bindvalue(':codigoMesa', $this->codigoMesa, PDO::PARAM_INT);
+		$consulta->bindvalue(':codigoPedido', $this->codigoPedido, PDO::PARAM_INT);
+		$consulta->bindvalue(':puntuacionMesa', $this->puntuacionMesa, PDO::PARAM_INT);
+		$consulta->bindvalue(':puntuacionMozo', $this->puntuacionMozo, PDO::PARAM_INT);
+		$consulta->bindvalue(':puntuacionCocinero', $this->puntuacionCocinero, PDO::PARAM_INT);
+		$consulta->bindvalue(':puntuacionRestaurante', $this->puntuacionRestaurante, PDO::PARAM_INT);
+		$consulta->bindvalue(':descripcion', $this->descripcion, PDO::PARAM_STR);
+
         $consulta->execute();
     }
 
@@ -112,4 +139,37 @@ class Encuesta
         $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
         $consulta->execute();
     }
+
+
+	public static function ObtenerEncuesta($id){
+		$encuesta = Encuesta::obtenerEncuestaDB($id);
+
+		$encuesta->pedido = Pedido::obtenerPedidoDB($encuesta->idPedido);
+		$encuesta->mesa = Mesa::obtenerMesaDB($encuesta->idMesa);
+
+		return $encuesta;
+	}
+	
+	public static function ObtenerEncuestas(){
+		$encuestas = Encuesta::obtenerEncuestasDB();
+
+		foreach($encuestas as $encuesta){
+			$encuesta->pedido = Pedido::obtenerPedidoDB($encuesta->idPedido);
+			$encuesta->mesa = Mesa::obtenerMesaDB($encuesta->idMesa);
+		}
+
+		return $encuestas;
+	}
+
+	public static function ObtenerMejoresComentarios(){
+		$idEncuestas = Encuesta::ObtenerMejores();
+		$encuestas = array();
+
+		foreach($idEncuestas as $id){
+			$encuesta = Encuesta::ObtenerEncuesta($id);
+			array_push($encuestas, $encuesta);
+		}
+
+		return $encuestas;
+	}
 }
