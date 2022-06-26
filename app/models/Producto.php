@@ -20,7 +20,7 @@ class Producto
                 R.id AS idRolEncargado
             FROM roles R
             WHERE R.descripcion = :rolEncargado
-            LIMIT 1
+			LIMIT 1
         ");
 
         $consulta->bindValue(':nombreProducto', $this->nombre, PDO::PARAM_STR);
@@ -43,6 +43,7 @@ class Producto
                 R.descripcion as rolEncargado
             FROM productos P
                 JOIN roles R ON R.id = P.idRolEncargado
+			WHERE P.fechaBaja IS NULL
 			ORDER BY P.id ASC
         ");
         $consulta->execute();
@@ -62,7 +63,8 @@ class Producto
             FROM productos P
                 JOIN roles R ON R.id = P.idRolEncargado
             WHERE P.id = :idProducto
-        ");
+				AND P.fechaBaja IS NULL
+		");
         $consulta->bindValue(':idProducto', $id, PDO::PARAM_STR);
         $consulta->execute();
 
@@ -74,14 +76,13 @@ class Producto
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
             UPDATE productos 
+				JOIN roles R ON R.id = :rolEncargado
             SET P.nombre = :nombre, 
                 P.tiempoEstimado = :tiempoEstimado, 
                 P.precio = :precio, 
                 P.idRolEncargado = R.id
-            FROM productos P
-                JOIN roles R ON R.id = :rolEncargado
             WHERE P.id = :id
-        ");
+		");
         $consulta->bindValue(':producto', $producto->nombre, PDO::PARAM_STR);
         $consulta->bindValue(':tiempoEstimado', $producto->tiempoEstimado);
         $consulta->bindValue(':precio', $producto->precio);
@@ -115,6 +116,7 @@ class Producto
 			FROM productos P
 				JOIN roles R ON R.id = P.idRolEncargado
 			WHERE R.descripcion = :rol
+				AND P.fechaBaja IS NULL
 		");
 		$consulta->bindValue(':rol', $rol, PDO::PARAM_INT);
 	}
@@ -131,7 +133,8 @@ class Producto
                 R.id AS idRolEncargado
             FROM roles R
             WHERE R.descripcion = :rolEncargado
-            LIMIT 1
+				AND P.fechaBaja IS NULL
+			LIMIT 1
         ");
 
 		

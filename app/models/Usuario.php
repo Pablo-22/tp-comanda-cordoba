@@ -58,7 +58,8 @@ class Usuario
 						) EP2 ON EP2.idUsuario = EP.idEntidad 
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.idUsuario = U.id
-        ");
+			WHERE U.fechaBaja IS NULL
+		");
         $consulta->execute();
 
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Usuario');
@@ -72,7 +73,7 @@ class Usuario
                 U.nombre, 
                 U.clave, 
                 R.descripcion as rol,
-				E.descripcion AS estado
+				E.descripcion AS estado,
 				U.sector
 			FROM usuarios U
                 JOIN roles R ON R.id = U.idRol
@@ -89,7 +90,8 @@ class Usuario
 						) EP2 ON EP2.idUsuario = EP.idEntidad 
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.idUsuario = U.id
-            WHERE U.nombre = :nombreUsuario;
+            WHERE U.nombre = :nombreUsuario
+				AND U.fechaBaja IS NULL
         ");
         $consulta->bindValue(':nombreUsuario', $nombre, PDO::PARAM_STR);
         $consulta->execute();
@@ -102,10 +104,10 @@ class Usuario
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
             UPDATE usuarios  U
-			JOIN roles R ON R.descripcion = :rol
+				JOIN roles R ON R.descripcion = :rol
             SET U.nombre = :usuario, 
                 U.clave = :clave,
-                U.idRol = R.id
+                U.idRol = R.id,
 				U.sector = :sector
             WHERE U.id = :id
         ");

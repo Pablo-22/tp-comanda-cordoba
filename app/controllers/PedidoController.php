@@ -44,14 +44,14 @@ class PedidoController extends Pedido implements IApiUsable
 		$estadoMesa = new Estado();
 		$estadoMesa->idEntidad = MesaController::ObtenerMesa($codigoMesa)->id;
 		$estadoMesa->descripcion = STATUS_MESA_ESPERANDO;
-		$estadoMesa->usuarioCreador = $nombreUsuario;
+		$estadoMesa->usuarioCreador = $usuario->nombre;
 		$estadoMesa->entidad = 'Mesa';
 
 		$estadoMesa->guardarEstado();
 
 		
 		// Se guardan los productos del pedido
-		PedidoController::GuardarProductosDePedido($nombreUsuario, $codigo, $idProductos, $productos_cantidad);
+		PedidoController::GuardarProductosDePedido($usuario->nombre, $codigo, $idProductos, $productos_cantidad);
 
 		$log = new Log();
 		$log->idUsuarioCreador = $usuario->id;

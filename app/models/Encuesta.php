@@ -58,6 +58,7 @@ class Encuesta
 				E.puntuacionRestaurante,
 				E.descripcion
 			FROM encuestas E
+			WHERE E.fechaBaja IS NULL
         ");
         $consulta->execute();
 
@@ -70,6 +71,7 @@ class Encuesta
         $consulta = $objAccesoDatos->prepararConsulta("
             SELECT E.id
 			FROM encuestas E
+			WHERE E.fechaBaja IS NULL
 			ORDER BY SUM(E.puntuacionMesa + E.puntuacionMozo + E.puntuacionCocinero + E.puntuacionRestaurante) DESC
 			LIMIT 3
         ");
@@ -94,7 +96,8 @@ class Encuesta
 				JOIN pedidos P ON P.id = E.idPedido
 				JOIN mesas M ON M.id = E.idMesa
 			WHERE E.Id = :idEncuesta
-        ");
+				AND E.fechaBaja IS NULL
+		");
         $consulta->bindValue(':idEncuesta', $idEncuesta, PDO::PARAM_STR);
         $consulta->execute();
 
@@ -114,7 +117,8 @@ class Encuesta
 				puntuacionRestaurante = :puntuacionRestaurante,
 				descripcion = :descripcion
             WHERE U.id = :id
-        ");
+				AND E.fechaBaja IS NULL
+		");
 
 		$consulta->bindvalue(':id', $this->id, PDO::PARAM_INT);
 		$consulta->bindvalue(':codigoMesa', $this->codigoMesa, PDO::PARAM_INT);

@@ -47,7 +47,8 @@ class Mesa
 						) EP2 ON EP2.idMesa = EP.idEntidad 
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.idMesa = M.id
-        ");
+			WHERE M.fechaBaja IS NULL
+		");
         $consulta->execute();
 
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
@@ -62,7 +63,8 @@ class Mesa
                 M.capacidad
             FROM mesas M
             WHERE M.codigo = :codigoMesa
-        ");
+				AND M.fechaBaja IS NULL
+		");
         $consulta->bindValue(':codigoMesa', $codigo, PDO::PARAM_STR);
         $consulta->execute();
 
@@ -79,6 +81,7 @@ class Mesa
 				M.capacidad
 			FROM pedidos P
 				JOIN mesas M ON M.id = P.idMesa
+			WHERE M.fechaBaja IS NULL
 			GROUP BY M.id, M.codigo, M.capacidad
 			HAVING COUNT(1) = (SELECT COUNT(1) FROM pedidos P GROUP BY P.idMesa ORDER BY COUNT(1) DESC LIMIT 1)
         ");
@@ -97,7 +100,8 @@ class Mesa
                 M.capacidad = :capacidad
             FROM mesas M
             WHERE id = :id
-        ");
+				AND M.fechaBaja IS NULL
+		");
         $consulta->bindValue(':mesa', $mesa->codigo, PDO::PARAM_STR);
         $consulta->bindValue(':capacidad', $mesa->capacidad, PDO::PARAM_STR);
         $consulta->bindValue(':id', $mesa->id, PDO::PARAM_INT);

@@ -105,7 +105,7 @@ class UsuarioController extends Usuario implements IApiUsable
 		$clave = $parametros['clave'];
 		$output = 'Credenciales incorrectas.';
 
-		$usuario = Usuario::obtenerUsuario($nombreUsuario, $clave);
+		$usuario = Usuario::obtenerUsuario($nombreUsuario);
 		if (password_verify($clave, $usuario->clave)) {
 			$usuario->clave = null;
 			$output = AutentificadorJWT::crearToken($usuario);

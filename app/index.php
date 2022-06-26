@@ -58,10 +58,19 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
 $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->get('[/]', \ProductoController::class . ':TraerTodos');
     $group->get('/{nombre}', \ProductoController::class . ':TraerUno');
-    $group->post('/CargarUno', \ProductoController::class . ':CargarUno');
-    $group->post('/ModificarUno', \ProductoController::class . ':ModificarUno');
-    $group->post('/ImportarCSV', \ProductoController::class . ':ImportarCSV');
-    $group->delete('[/]', \ProductoController::class . ':BorrarUno');
+
+    $group->post('/CargarUno', \ProductoController::class . ':CargarUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+
+	$group->post('/ModificarUno', \ProductoController::class . ':ModificarUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+
+	$group->post('/ImportarCSV', \ProductoController::class . ':ImportarCSV')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+
+    $group->delete('[/]', \ProductoController::class . ':BorrarUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+
 })->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
@@ -75,7 +84,9 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->post('/EntregarPedido', \PedidoController::class . ':EntregarPedido');
     $group->post('/ModificarUno', \PedidoController::class . ':ModificarUno');
     $group->post('/CobrarPedido', \PedidoController::class . ':CobrarPedido');
-    $group->delete('[/]', \PedidoController::class . ':BorrarUno');
+
+    $group->delete('[/]', \PedidoController::class . ':BorrarUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 })->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
@@ -83,9 +94,12 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
     $group->get('[/]', \MesaController::class . ':TraerTodos');
     $group->get('/{nombre}', \MesaController::class . ':TraerUno');
     $group->post('/CargarUno', \MesaController::class . ':CargarUno');
-    $group->post('/ModificarUno', \MesaController::class . ':ModificarUno');
+    $group->post('/ModificarUno', \MesaController::class . ':ModificarUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+
     $group->post('/CerrarMesa', \MesaController::class . ':CerrarMesa');
-    $group->delete('[/]', \MesaController::class . ':BorrarUno');
+    $group->delete('[/]', \MesaController::class . ':BorrarUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 })->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 

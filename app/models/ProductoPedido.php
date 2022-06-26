@@ -57,7 +57,8 @@ class ProductoPedido
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.idProductoPedido = PP.id
             WHERE PS.codigo = :codigoPedido
-        ");
+				AND PP.fechaBaja IS NULL
+		");
         $consulta->bindValue(':codigoPedido', $codigoPedido, PDO::PARAM_STR);
         $consulta->execute();
 
@@ -91,6 +92,7 @@ class ProductoPedido
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.idProductoPedido = PP.id
             WHERE PP.id = :idProductoPedido
+				AND PP.fechaBaja IS NULL
         ");
         $consulta->bindValue(':idProductoPedido', $idProductoPedido, PDO::PARAM_STR);
         $consulta->execute();
