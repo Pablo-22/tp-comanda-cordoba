@@ -31,18 +31,18 @@ $app->addBodyParsingMiddleware();
 
 // Routes
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
-    $group->get('[/]', \UsuarioController::class . ':TraerTodos');
-    $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
-    $group->post('[/]', \UsuarioController::class . ':CargarUno');
+    $group->get('[/]', \UsuarioController::class . ':traerTodos');
+    $group->get('/{usuario}', \UsuarioController::class . ':traerUno');
+    $group->post('[/]', \UsuarioController::class . ':cargarUno');
   });
 
 $app->group('/credenciales', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \UsuarioController::class . ':TraerTodos');
+  $group->get('[/]', \UsuarioController::class . ':traerTodos');
   $group->post('[/]', \UsuarioController::class . ':ChequearUno');
 })->add(\Logger::class . ':VerificarCredenciales');
 
 $app->group('/json', function (RouteCollectorProxy $group) {
-  $group->get('[/]', \UsuarioController::class . ':TraerTodos');
+  $group->get('[/]', \UsuarioController::class . ':traerTodos');
   $group->post('[/]', \UsuarioController::class . ':ChequearUno');
 })->add(\Logger::class . ':VerificarCredenciales');
 

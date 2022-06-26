@@ -101,7 +101,7 @@ class ProductoPedido
 	}
 
 
-	public static function ModificarProductoPedido($productoPedido)
+	public static function modificarProductoPedido($productoPedido)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("

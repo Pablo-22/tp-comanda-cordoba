@@ -32,7 +32,7 @@ class Producto
         return $objAccesoDatos->obtenerUltimoId();
     }
 
-    public static function ObtenerTodos()
+    public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("

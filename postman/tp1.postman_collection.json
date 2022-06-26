@@ -193,7 +193,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:666/pedidos/CargarUno",
+							"raw": "http://localhost:666/pedidos/cargarUno",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -201,14 +201,14 @@
 							"port": "666",
 							"path": [
 								"pedidos",
-								"CargarUno"
+								"cargarUno"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "TomarPedido",
+					"name": "tomarPedido",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -243,7 +243,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:666/pedidos/TomarPedido",
+							"raw": "http://localhost:666/pedidos/tomarPedido",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -251,14 +251,14 @@
 							"port": "666",
 							"path": [
 								"pedidos",
-								"TomarPedido"
+								"tomarPedido"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "TerminarPreparacionProducto",
+					"name": "terminarPreparacionProducto",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -288,7 +288,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:666/pedidos/TerminarPreparacionProducto",
+							"raw": "http://localhost:666/pedidos/terminarPreparacionProducto",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -296,7 +296,7 @@
 							"port": "666",
 							"path": [
 								"pedidos",
-								"TerminarPreparacionProducto"
+								"terminarPreparacionProducto"
 							]
 						}
 					},
@@ -380,7 +380,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:666/mesas/CargarUno",
+							"raw": "http://localhost:666/mesas/cargarUno",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -388,7 +388,7 @@
 							"port": "666",
 							"path": [
 								"mesas",
-								"CargarUno"
+								"cargarUno"
 							]
 						}
 					},
@@ -448,7 +448,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:666/usuarios/CargarUno",
+							"raw": "http://localhost:666/usuarios/cargarUno",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -456,7 +456,7 @@
 							"port": "666",
 							"path": [
 								"usuarios",
-								"CargarUno"
+								"cargarUno"
 							]
 						}
 					},
@@ -533,7 +533,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:666/usuarios/ModificarUno",
+							"raw": "http://localhost:666/usuarios/modificarUno",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -541,7 +541,7 @@
 							"port": "666",
 							"path": [
 								"usuarios",
-								"ModificarUno"
+								"modificarUno"
 							]
 						}
 					},
@@ -718,7 +718,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:666/productos/CargarUno",
+							"raw": "http://localhost:666/productos/cargarUno",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -726,7 +726,7 @@
 							"port": "666",
 							"path": [
 								"productos",
-								"CargarUno"
+								"cargarUno"
 							]
 						}
 					},

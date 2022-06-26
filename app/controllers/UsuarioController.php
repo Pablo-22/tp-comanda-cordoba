@@ -5,7 +5,7 @@ require_once './middlewares/AutentificadorJWT.php';
 
 class UsuarioController extends Usuario implements IApiUsable
 {
-	public function CargarUno($request, $response, $args)
+	public function cargarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
@@ -35,7 +35,7 @@ class UsuarioController extends Usuario implements IApiUsable
 	}
 
 
-	public function TraerUno($request, $response, $args)
+	public function traerUno($request, $response, $args)
 	{
 		// Buscamos usuario por nombre
 		$usr = $args['nombre'];
@@ -47,9 +47,9 @@ class UsuarioController extends Usuario implements IApiUsable
 		->withHeader('Content-Type', 'application/json');
 	}
 
-	public function TraerTodos($request, $response, $args)
+	public function traerTodos($request, $response, $args)
 	{
-		$lista = Usuario::ObtenerTodos();
+		$lista = Usuario::obtenerTodos();
 		$payload = json_encode(array("listaUsuario" => $lista));
 
 		$response->getBody()->write($payload);
@@ -57,7 +57,7 @@ class UsuarioController extends Usuario implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 	
-	public function ModificarUno($request, $response, $args)
+	public function modificarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
@@ -85,7 +85,7 @@ class UsuarioController extends Usuario implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function BorrarUno($request, $response, $args)
+	public function borrarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 

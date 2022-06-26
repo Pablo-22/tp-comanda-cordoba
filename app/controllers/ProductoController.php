@@ -4,11 +4,11 @@ require_once './interfaces/IApiUsable.php';
 
 class ProductoController extends Producto implements IApiUsable
 {
-	public function CargarUno($request, $response, $args)
+	public function cargarUno($request, $response, $args)
 	{
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$nombre = AutentificadorJWT::ObtenerData($token);
+		$nombre = AutentificadorJWT::obtenerData($token);
 
 
 		$parametros = $request->getParsedBody();
@@ -39,7 +39,7 @@ class ProductoController extends Producto implements IApiUsable
 	}
 
 
-	public function TraerUno($request, $response, $args)
+	public function traerUno($request, $response, $args)
 	{
 		// Buscamos producto por nombre
 		$prd = $args['nombre'];
@@ -51,9 +51,9 @@ class ProductoController extends Producto implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function TraerTodos($request, $response, $args)
+	public function traerTodos($request, $response, $args)
 	{
-		$lista = Producto::ObtenerTodos();
+		$lista = Producto::obtenerTodos();
 		$payload = json_encode(array("listaProducto" => $lista));
 
 		$response->getBody()->write($payload);
@@ -61,7 +61,7 @@ class ProductoController extends Producto implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 	
-	public function ModificarUno($request, $response, $args)
+	public function modificarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
@@ -75,7 +75,7 @@ class ProductoController extends Producto implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function BorrarUno($request, $response, $args)
+	public function borrarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
@@ -91,7 +91,7 @@ class ProductoController extends Producto implements IApiUsable
 
 	public function ImportarCSV($request, $response, $args){
 		$path = '..\\tmpCSV\\' . date("d-m-y His") . '.csv';
-		$mensaje = ArchivoController::SaveFile($path, true, 500000, ['.csv']);
+		$mensaje = ArchivoController::guardarArchivo($path, true, 500000, ['.csv']);
 
 		$data = ArchivoController::ReadCsv($path);
 

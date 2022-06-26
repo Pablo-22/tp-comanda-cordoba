@@ -12,7 +12,7 @@ class Pedido
 	public $estado;
 	public $tiempoEstimado;
 
-    public function CrearPedidoDB()
+    public function crearPedidoDB()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -35,7 +35,7 @@ class Pedido
         return $objAccesoDatos->obtenerUltimoId();
     }
 
-    public static function ObtenerTodosDB()
+    public static function obtenerTodosDB()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -66,7 +66,7 @@ class Pedido
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
     }
 
-    public static function ObtenerPedidoDB($codigo)
+    public static function obtenerPedidoDB($codigo)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -99,7 +99,7 @@ class Pedido
         return $consulta->fetchObject('Pedido');
     }
 
-	public static function ObtenerPedidosPendientesDB()
+	public static function obtenerPedidosPendientesDB()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -131,7 +131,7 @@ class Pedido
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
     }
 
-    public static function ModificarPedidoDB($pedido)
+    public static function modificarPedidoDB($pedido)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
@@ -151,7 +151,7 @@ class Pedido
         $consulta->execute();
     }
 
-    public static function BorrarPedidoDB($id)
+    public static function borrarPedidoDB($id)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
@@ -163,7 +163,7 @@ class Pedido
         $consulta->execute();
     }
 
-	public static function ObtenerPedidosPorMesa($codigoMesa)
+	public static function obtenerPedidosPorMesa($codigoMesa)
 	{
 		$objAccesoDatos = AccesoDatos::obtenerInstancia();
 		$consulta = $objAccesoDatos->prepararConsulta("
@@ -195,8 +195,8 @@ class Pedido
 		return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
 	}
 
-	public static function ObtenerPedido($codigoPedido) {
-		$pedido = Pedido::ObtenerPedidoDB($codigoPedido);
+	public static function obtenerPedido($codigoPedido) {
+		$pedido = Pedido::obtenerPedidoDB($codigoPedido);
 
 		$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($codigoPedido);
 		foreach ($pedido->productosPedidos as $producto) {
@@ -214,8 +214,8 @@ class Pedido
 		return $pedido;
 	}
 
-	public static function ObtenerTodos(){
-		$lista = Pedido::ObtenerTodosDB();
+	public static function obtenerTodos(){
+		$lista = Pedido::obtenerTodosDB();
 
 		foreach ($lista as $pedido) {
 			$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($pedido->codigo);

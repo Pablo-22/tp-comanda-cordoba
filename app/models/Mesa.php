@@ -25,7 +25,7 @@ class Mesa
         return $objAccesoDatos->obtenerUltimoId();
     }
 
-    public static function ObtenerTodos()
+    public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
@@ -54,7 +54,7 @@ class Mesa
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
     }
 
-    public static function ObtenerMesa($codigo)
+    public static function obtenerMesa($codigo)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("

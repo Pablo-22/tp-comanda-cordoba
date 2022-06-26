@@ -4,13 +4,13 @@ require_once './interfaces/IApiUsable.php';
 
 class MesaController extends Mesa implements IApiUsable
 {
-	public function CargarUno($request, $response, $args)
+	public function cargarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
 
-		$nombreUsuario = AutentificadorJWT::ObtenerData($token)->nombre;
+		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
 
 		$codigo = $parametros['codigo'];
 		$capacidad = $parametros['capacidad'];
@@ -36,11 +36,11 @@ class MesaController extends Mesa implements IApiUsable
 	}
 
 
-	public function TraerUno($request, $response, $args)
+	public function traerUno($request, $response, $args)
 	{
 		// Buscamos mesa por código
 		$mesa = $args['codigo'];
-		$mesa = Mesa::ObtenerMesa($mesa);
+		$mesa = Mesa::obtenerMesa($mesa);
 		$payload = json_encode($mesa);
 
 		$response->getBody()->write($payload);
@@ -48,9 +48,9 @@ class MesaController extends Mesa implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function TraerTodos($request, $response, $args)
+	public function traerTodos($request, $response, $args)
 	{
-		$lista = Mesa::ObtenerTodos();
+		$lista = Mesa::obtenerTodos();
 		$payload = json_encode(array("listaMesa" => $lista));
 
 		$response->getBody()->write($payload);
@@ -58,7 +58,7 @@ class MesaController extends Mesa implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 	
-	public function ModificarUno($request, $response, $args)
+	public function modificarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
@@ -72,7 +72,7 @@ class MesaController extends Mesa implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function BorrarUno($request, $response, $args)
+	public function borrarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
@@ -95,9 +95,9 @@ class MesaController extends Mesa implements IApiUsable
 		
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::ObtenerData($token);
+		$usuario = AutentificadorJWT::obtenerData($token);
 
-		$mesa = Mesa::ObtenerMesa($codigoMesa);
+		$mesa = Mesa::obtenerMesa($codigoMesa);
 		if ($usuario->rol == 'socio' || $usuario->rol == 'mozo') {
 			if ($mesa->estado == STATUS_MESA_PAGANDO) {
 

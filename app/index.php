@@ -41,64 +41,64 @@ $app->group('/login', function (RouteCollectorProxy $group) {
 });
 
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
-    $group->get('[/]', \UsuarioController::class . ':TraerTodos');
-    $group->get('/{nombre}', \UsuarioController::class . ':TraerUno');
+    $group->get('[/]', \UsuarioController::class . ':traerTodos');
+    $group->get('/{nombre}', \UsuarioController::class . ':traerUno');
 
-    $group->post('/CargarUno', \UsuarioController::class . ':CargarUno')
+    $group->post('/cargarUno', \UsuarioController::class . ':cargarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
-    $group->post('/ModificarUno', \UsuarioController::class . ':ModificarUno')
+    $group->post('/modificarUno', \UsuarioController::class . ':modificarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
-    $group->delete('[/]', \UsuarioController::class . ':BorrarUno')
+    $group->delete('[/]', \UsuarioController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 })->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
-    $group->get('[/]', \ProductoController::class . ':TraerTodos');
-    $group->get('/{nombre}', \ProductoController::class . ':TraerUno');
+    $group->get('[/]', \ProductoController::class . ':traerTodos');
+    $group->get('/{nombre}', \ProductoController::class . ':traerUno');
 
-    $group->post('/CargarUno', \ProductoController::class . ':CargarUno')
+    $group->post('/cargarUno', \ProductoController::class . ':cargarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
-	$group->post('/ModificarUno', \ProductoController::class . ':ModificarUno')
+	$group->post('/modificarUno', \ProductoController::class . ':modificarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
 	$group->post('/ImportarCSV', \ProductoController::class . ':ImportarCSV')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
-    $group->delete('[/]', \ProductoController::class . ':BorrarUno')
+    $group->delete('[/]', \ProductoController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
 })->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
-    $group->get('[/]', \PedidoController::class . ':TraerTodos');
-    $group->get('/Pendientes', \PedidoController::class . ':TraerPendientes');
-    $group->get('/{codigo}', \PedidoController::class . ':TraerUno');
-    $group->post('/CargarUno', \PedidoController::class . ':CargarUno');
-    $group->post('/TomarPedido', \PedidoController::class . ':TomarPedido');
-    $group->post('/TerminarPreparacionProducto', \PedidoController::class . ':TerminarPreparacionProducto');
-    $group->post('/EntregarPedido', \PedidoController::class . ':EntregarPedido');
-    $group->post('/ModificarUno', \PedidoController::class . ':ModificarUno');
-    $group->post('/CobrarPedido', \PedidoController::class . ':CobrarPedido');
+    $group->get('[/]', \PedidoController::class . ':traerTodos');
+    $group->get('/Pendientes', \PedidoController::class . ':traerPendientes');
+    $group->get('/{codigo}', \PedidoController::class . ':traerUno');
+    $group->post('/cargarUno', \PedidoController::class . ':cargarUno');
+    $group->post('/tomarPedido', \PedidoController::class . ':tomarPedido');
+    $group->post('/terminarPreparacionProducto', \PedidoController::class . ':terminarPreparacionProducto');
+    $group->post('/entregarPedido', \PedidoController::class . ':entregarPedido');
+    $group->post('/modificarUno', \PedidoController::class . ':modificarUno');
+    $group->post('/cobrarPedido', \PedidoController::class . ':cobrarPedido');
 
-    $group->delete('[/]', \PedidoController::class . ':BorrarUno')
+    $group->delete('[/]', \PedidoController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 })->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
-    $group->get('[/]', \MesaController::class . ':TraerTodos');
-    $group->get('/{nombre}', \MesaController::class . ':TraerUno');
-    $group->post('/CargarUno', \MesaController::class . ':CargarUno');
-    $group->post('/ModificarUno', \MesaController::class . ':ModificarUno')
+    $group->get('[/]', \MesaController::class . ':traerTodos');
+    $group->get('/{nombre}', \MesaController::class . ':traerUno');
+    $group->post('/cargarUno', \MesaController::class . ':cargarUno');
+    $group->post('/modificarUno', \MesaController::class . ':modificarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
     $group->post('/CerrarMesa', \MesaController::class . ':CerrarMesa');
-    $group->delete('[/]', \MesaController::class . ':BorrarUno')
+    $group->delete('[/]', \MesaController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 })->add(\AutentificadorJWT::class . ':VerificarAcceso');
 

@@ -6,13 +6,13 @@ require_once './interfaces/IApiUsable.php';
 
 class PedidoController extends Pedido implements IApiUsable
 {
-	public function CargarUno($request, $response, $args)
+	public function cargarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 		
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::ObtenerData($token);
+		$usuario = AutentificadorJWT::obtenerData($token);
 
 		$codigo = $parametros['codigo'];
 		$codigoMesa = $parametros['codigoMesa'];
@@ -27,11 +27,11 @@ class PedidoController extends Pedido implements IApiUsable
 
 		if (isset($_FILES['archivo']['name'])) {
 			$path = '..\\ImagenesPedidos\\' . $pedido->codigo . '.png';
-			ArchivoController::SaveFile($path, true, 500000, ['.png', '.jpg', '.jpeg']);
+			ArchivoController::guardarArchivo($path, true, 500000, ['.png', '.jpg', '.jpeg']);
 	
 			$pedido->rutaImagen = $path;
 		}
-		$idPedido = $pedido->CrearPedidoDB();
+		$idPedido = $pedido->crearPedidoDB();
 
 		$estadoPedido = new Estado();
 		$estadoPedido->idEntidad = $idPedido;
@@ -42,7 +42,7 @@ class PedidoController extends Pedido implements IApiUsable
 		$estadoPedido->guardarEstado();
 
 		$estadoMesa = new Estado();
-		$estadoMesa->idEntidad = MesaController::ObtenerMesa($codigoMesa)->id;
+		$estadoMesa->idEntidad = MesaController::obtenerMesa($codigoMesa)->id;
 		$estadoMesa->descripcion = STATUS_MESA_ESPERANDO;
 		$estadoMesa->usuarioCreador = $usuario->nombre;
 		$estadoMesa->entidad = 'Mesa';
@@ -51,7 +51,7 @@ class PedidoController extends Pedido implements IApiUsable
 
 		
 		// Se guardan los productos del pedido
-		PedidoController::GuardarProductosDePedido($usuario->nombre, $codigo, $idProductos, $productos_cantidad);
+		PedidoController::guardarProductosDePedido($usuario->nombre, $codigo, $idProductos, $productos_cantidad);
 
 		$log = new Log();
 		$log->idUsuarioCreador = $usuario->id;
@@ -65,20 +65,20 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function CargarFotoPedido(){
+	public function cargarFotoPedido(){
 		$mensaje = 'Ha habido un error';
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::ObtenerData($token);
+		$usuario = AutentificadorJWT::obtenerData($token);
 
 		if ($usuario->rol == 'socio' || $usuario->rol == 'mozo') {
-			$pedido = Pedido::ObtenerPedido();
+			$pedido = Pedido::obtenerPedido();
 			$path = '..\\ImagenesPedidos\\' . $pedido->codigo . '.png';
-			ArchivoController::SaveFile($path, true, 500000, ['.png', '.jpg', '.jpeg']);
+			ArchivoController::guardarArchivo($path, true, 500000, ['.png', '.jpg', '.jpeg']);
 
 			$pedido->rutaImagen = $path;
 
-			$pedido->ModificarPedidoDB();
+			$pedido->modificarPedidoDB();
 		}else {
 			$mensaje = 'Acceso denegado o permisos insuficientes';
 		}
@@ -96,15 +96,15 @@ class PedidoController extends Pedido implements IApiUsable
 	}
 
 
-	public function TraerUno($request, $response, $args)
+	public function traerUno($request, $response, $args)
 	{
 
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$nombreUsuario = AutentificadorJWT::ObtenerData($token)->nombre;
+		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
 
 		$codigoPedido = $args['codigo'];
-		$pedido = Pedido::ObtenerPedido($codigoPedido);
+		$pedido = Pedido::obtenerPedido($codigoPedido);
 
 		$payload = json_encode($pedido);
 
@@ -113,13 +113,13 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function TraerTodos($request, $response, $args)
+	public function traerTodos($request, $response, $args)
 	{
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$nombreUsuario = AutentificadorJWT::ObtenerData($token)->nombre;
+		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
 
-		$lista = Pedido::ObtenerTodos();
+		$lista = Pedido::obtenerTodos();
 
 		$payload = json_encode(array("listaPedido" => $lista));
 
@@ -128,13 +128,13 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function TraerPendientes($request, $response, $args)
+	public function traerPendientes($request, $response, $args)
 	{
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$nombreUsuario = AutentificadorJWT::ObtenerData($token)->nombre;
+		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
 
-		$lista = Pedido::ObtenerPedidosPendientesDB();
+		$lista = Pedido::obtenerPedidosPendientesDB();
 
 		foreach ($lista as $pedido) {
 			$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($pedido->codigo);
@@ -155,11 +155,11 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 	
-	public function ModificarUno($request, $response, $args)
+	public function modificarUno($request, $response, $args)
 	{
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::ObtenerData($token);
+		$usuario = AutentificadorJWT::obtenerData($token);
 		
 		$parametros = $request->getParsedBody();
 
@@ -173,16 +173,16 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function BorrarUno($request, $response, $args)
+	public function borrarUno($request, $response, $args)
 	{
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$nombreUsuario = AutentificadorJWT::ObtenerData($token)->nombre;
+		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
 
 		$parametros = $request->getParsedBody();
 
 		$usuarioId = $parametros['id'];
-		Pedido::borrarPedido($id);
+		Pedido::borrarPedidoDB($id);
 
 		$payload = json_encode(array("mensaje" => "Pedido borrado con exito"));
 
@@ -191,7 +191,7 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public static function GuardarProductosDePedido($usuario, $codPedido, $IdProductos, $cantidad){
+	public static function guardarProductosDePedido($usuario, $codPedido, $IdProductos, $cantidad){
 		for ($i=0; $i < count($IdProductos); $i++) { 
 			$ped_prod = new ProductoPedido();
 			$ped_prod->codigoPedido = $codPedido;
@@ -209,10 +209,10 @@ class PedidoController extends Pedido implements IApiUsable
 		}
 	}
 
-	public static function TomarPedido($request, $response, $args){
+	public static function tomarPedido($request, $response, $args){
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::ObtenerData($token);
+		$usuario = AutentificadorJWT::obtenerData($token);
 
 		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
@@ -224,7 +224,7 @@ class PedidoController extends Pedido implements IApiUsable
 		$productoPedido = ProductoPedido::obtenerProductoPedido($idProductoPedido);
 		$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
 		if ($usuario->rol == 'socio' || $productoPedido->producto->rolEncargado == $usuario->rol) {
-			$pedido = Pedido::ObtenerPedidoDB($codigoPedido);
+			$pedido = Pedido::obtenerPedidoDB($codigoPedido);
 
 			$estado_pedido = new Estado();
 			$estado_pedido->idEntidad = $pedido->id;
@@ -241,7 +241,7 @@ class PedidoController extends Pedido implements IApiUsable
 			$estado_ped_prod->guardarEstado();
 
 			$productoPedido->tiempoEstimado = $tiempoEstimado;
-			ProductoPedido::ModificarProductoPedido($productoPedido);
+			ProductoPedido::modificarProductoPedido($productoPedido);
 
 			$usuario = Usuario::obtenerUsuario($usuario->nombre);
 			$estado_ped_prod = new Estado();
@@ -253,7 +253,7 @@ class PedidoController extends Pedido implements IApiUsable
 
 			$log = new Log();
 			$log->idUsuarioCreador = $usuario->id;
-			$log->descripcion = Log::obtenerDescripcionLogTomarPedido($pedido->codigo);
+			$log->descripcion = Log::obtenerDescripcionLogtomarPedido($pedido->codigo);
 			$log->guardarLog();
 
 			$mensaje = 'El pedido está ahora en preparación';
@@ -266,11 +266,11 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public static function TerminarPreparacionProducto($request, $response, $args){
+	public static function terminarPreparacionProducto($request, $response, $args){
 
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::ObtenerData($token);
+		$usuario = AutentificadorJWT::obtenerData($token);
 
 		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
@@ -300,7 +300,7 @@ class PedidoController extends Pedido implements IApiUsable
 				$estado_usuario->guardarEstado();
 
 
-				$pedido = Pedido::ObtenerPedido($codigoPedido);
+				$pedido = Pedido::obtenerPedido($codigoPedido);
 
 				if ($pedido->estaListo()) {
 					$estado_pedido = new Estado();
@@ -328,7 +328,7 @@ class PedidoController extends Pedido implements IApiUsable
 	}
 
 
-	public static function EntregarPedido($request, $response, $args){
+	public static function entregarPedido($request, $response, $args){
 
 		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
@@ -337,10 +337,10 @@ class PedidoController extends Pedido implements IApiUsable
 		
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::ObtenerData($token);
+		$usuario = AutentificadorJWT::obtenerData($token);
 
-		$pedido = Pedido::ObtenerPedido($codigoPedido);
-		$mesa = Mesa::ObtenerMesa($pedido->codigoMesa);
+		$pedido = Pedido::obtenerPedido($codigoPedido);
+		$mesa = Mesa::obtenerMesa($pedido->codigoMesa);
 		if ($usuario->rol == 'socio' || $usuario->rol == 'mozo') {
 			if ($pedido->estado == STATUS_PEDIDO_LISTO_PARA_SERVIR) {
 
@@ -375,7 +375,7 @@ class PedidoController extends Pedido implements IApiUsable
 
 
 
-	public static function CobrarPedido($request, $response, $args){
+	public static function cobrarPedido($request, $response, $args){
 
 		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
@@ -384,10 +384,10 @@ class PedidoController extends Pedido implements IApiUsable
 		
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::ObtenerData($token);
+		$usuario = AutentificadorJWT::obtenerData($token);
 
-		$pedido = Pedido::ObtenerPedido($codigoPedido);
-		$mesa = Mesa::ObtenerMesa($pedido->codigoMesa);
+		$pedido = Pedido::obtenerPedido($codigoPedido);
+		$mesa = Mesa::obtenerMesa($pedido->codigoMesa);
 		if ($usuario->rol == 'socio' || $usuario->rol == 'mozo') {
 			if ($pedido->estado == STATUS_PEDIDO_ENTREGADO) {
 

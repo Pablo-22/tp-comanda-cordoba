@@ -13,7 +13,7 @@ class ControlDeAcceso
 		$token = trim(explode("Bearer", $token)[1]);
 		$response = new Response();
 		
-		$data = AutentificadorJWT::ObtenerData($token);
+		$data = AutentificadorJWT::obtenerData($token);
 		if (!empty($token) && $data->rol = 'socio') {
 			$response = $handler->handle($request);
 		}else{

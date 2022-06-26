@@ -56,7 +56,7 @@ class AutentificadorJWT
         );
     }
 
-    public static function ObtenerData($token)
+    public static function obtenerData($token)
     {
         return JWT::decode(
             $token,

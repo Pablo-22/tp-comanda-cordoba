@@ -57,7 +57,7 @@ class ArchivoController {
     }
 
 
-    public static function SaveFile($path, $overwrite, $maxSize, $allowedExtensions){
+    public static function guardarArchivo($path, $overwrite, $maxSize, $allowedExtensions){
         $uploadOk = FALSE;
         if (isset($_FILES['archivo']['name']) && isset($path) ) {
             //INDICO CUAL SERA EL DESTINO DEL ARCHIVO SUBIDO

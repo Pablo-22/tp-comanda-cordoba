@@ -5,7 +5,7 @@ require_once './middlewares/AutentificadorJWT.php';
 
 class EncuestaController extends Encuesta implements IApiUsable
 {
-	public function CargarUno($request, $response, $args)
+	public function cargarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
@@ -36,7 +36,7 @@ class EncuestaController extends Encuesta implements IApiUsable
 	}
 
 
-	public function TraerUno($request, $response, $args)
+	public function traerUno($request, $response, $args)
 	{
 		$encuesta = $args['id'];
 		$encuesta = Encuesta::obtenerEncuestaDB($encuesta);
@@ -47,9 +47,9 @@ class EncuestaController extends Encuesta implements IApiUsable
 		->withHeader('Content-Type', 'application/json');
 	}
 
-	public function TraerTodos($request, $response, $args)
+	public function traerTodos($request, $response, $args)
 	{
-		$lista = Encuesta::ObtenerTodos();
+		$lista = Encuesta::obtenerTodos();
 		$payload = json_encode(array("listaEncuesta" => $lista));
 
 		$response->getBody()->write($payload);
@@ -68,7 +68,7 @@ class EncuestaController extends Encuesta implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 	
-	public function ModificarUno($request, $response, $args)
+	public function modificarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
@@ -101,7 +101,7 @@ class EncuestaController extends Encuesta implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function BorrarUno($request, $response, $args)
+	public function borrarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
 
