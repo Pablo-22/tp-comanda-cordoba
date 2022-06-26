@@ -6,17 +6,19 @@ class Usuario
     public $nombre;
     public $clave;
     public $rol;
+	public $sector;
     public $estado;
 
     public function crearUsuario()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
-            INSERT INTO usuarios (nombre, clave, idRol) 
+            INSERT INTO usuarios (nombre, clave, idRol, sector) 
             SELECT 
                 :nombreUsuario AS nombre,
                 :clave AS clave,
-                R.id AS idRol
+                R.id AS idRol,
+				:sector AS sector
             FROM roles R
             WHERE R.descripcion = :rol
             LIMIT 1
@@ -39,7 +41,8 @@ class Usuario
                 U.nombre, 
                 U.clave, 
                 R.descripcion as rol,
-				E.descripcion AS estado
+				E.descripcion AS estado,
+				U.sector
             FROM usuarios U
                 JOIN roles R ON R.id = U.idRol
 
@@ -70,7 +73,8 @@ class Usuario
                 U.clave, 
                 R.descripcion as rol,
 				E.descripcion AS estado
-            FROM usuarios U
+				U.sector
+			FROM usuarios U
                 JOIN roles R ON R.id = U.idRol
 
 				LEFT JOIN ( -- Obtener el último estado
@@ -102,6 +106,7 @@ class Usuario
             SET U.nombre = :usuario, 
                 U.clave = :clave,
                 U.idRol = R.id
+				U.sector = :sector
             WHERE U.id = :id
         ");
         $consulta->bindValue(':usuario', $this->nombre, PDO::PARAM_STR);

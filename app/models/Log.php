@@ -5,6 +5,8 @@ class Log
     public $id;
     public $descripcion;
     public $idUsuarioCreador;
+    public $nombreUsuario;
+	public $fechaCreacion;
 
     public function guardarLog()
     {
@@ -24,6 +26,37 @@ class Log
         return $objAccesoDatos->obtenerUltimoId();
     }
 
+	public static function obtenerLogsPorUsuario($idUsuario)
+	{
+		$objAccesoDatos = AccesoDatos::obtenerInstancia();
+		$consulta = $objAccesoDatos->prepararConsulta("
+			SELECT L.id, L.descripcion, L.idUsuarioCreador, U.nombre AS nombreUsuario, L.fechaCreacion
+			FROM logs L
+				JOIN usuarios U ON U.id = L.idUsuarioCreador
+			WHERE L.idUsuarioCreador = :idUsuario
+		");
+
+		$consulta->bindValue(':idUsuario', $idUsuario);
+		$consulta->execute();
+		
+		return $consulta->fetchAll(PDO::FETCH_CLASS, 'Log');
+	}
+
+	public static function obtenerLogsPorSector($sector)
+	{
+		$objAccesoDatos = AccesoDatos::obtenerInstancia();
+		$consulta = $objAccesoDatos->prepararConsulta("
+			SELECT L.id, L.descripcion, L.idUsuarioCreador, U.nombre AS nombreUsuario ,L.fechaCreacion
+			FROM logs L
+				JOIN usuarios U ON U.id = L.idUsuarioCreador
+			WHERE U.sector = :sector
+		");
+
+		$consulta->bindValue(':sector', $sector);
+		$consulta->execute();
+		
+		return $consulta->fetchAll(PDO::FETCH_CLASS, 'Log');
+	}
 
 
 

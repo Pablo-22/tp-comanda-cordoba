@@ -69,6 +69,25 @@ class Mesa
         return $consulta->fetchObject('Mesa');
     }
 
+	public static function obtenerMesaMasUsadaDB()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+			SELECT 
+				M.id, 
+				M.codigo, 
+				M.capacidad
+			FROM pedidos P
+				JOIN mesas M ON M.id = P.idMesa
+			GROUP BY M.id, M.codigo, M.capacidad
+			HAVING COUNT(1) = (SELECT COUNT(1) FROM pedidos P GROUP BY P.idMesa ORDER BY COUNT(1) DESC LIMIT 1)
+        ");
+        $consulta->execute();
+
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
+    }
+
+
     public static function modificarMesa($mesa)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();

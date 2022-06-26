@@ -12,12 +12,14 @@ class UsuarioController extends Usuario implements IApiUsable
 		$nombre = $parametros['nombre'];
 		$clave = $parametros['clave'];
 		$rol = $parametros['rol'];
+		$sector = $parametros['sector'];
 
 		// Creamos el usuario
 		$usr = new Usuario();
 		$usr->nombre = $nombre;
 		$usr->clave = $clave;
 		$usr->rol = $rol;
+		$usr->sector = $sector;
 		$idUsuario = $usr->crearUsuario();
 
 		$estadoUsuario = new Estado();
@@ -62,6 +64,7 @@ class UsuarioController extends Usuario implements IApiUsable
 		$nombre = $parametros['nombre'];
 		$clave = $parametros['clave'];
 		$rol = $parametros['rol'];
+		$sector = $parametros['sector'];
 		$id = $parametros['id'];
 
 		// Creamos el usuario
@@ -69,6 +72,7 @@ class UsuarioController extends Usuario implements IApiUsable
 		$usr->nombre = $nombre;
 		$usr->clave = $clave;
 		$usr->rol = $rol;
+		$usr->sector = $sector;
 		$usr->id = $id;
 
 		$usr->modificarUsuario();
@@ -113,6 +117,35 @@ class UsuarioController extends Usuario implements IApiUsable
 		}
 
 		$payload = json_encode(array("respuesta" => $output));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+	public function ObtenerOperacionesPorUsuario($request, $response, $args){
+		$parametros = $request->getParsedBody();
+		$nombreUsuario = $parametros['nombreUsuario'];
+		$usuario = Usuario::obtenerUsuario($nombreUsuario);
+
+		$operaciones = Log::obtenerLogsPorusuario($usuario->id);
+		
+
+		$payload = json_encode(array("listaOperaciones" => $operaciones));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+	public function ObtenerOperacionesPorSector($request, $response, $args){
+		$parametros = $request->getParsedBody();
+		$sector = $parametros['sector'];
+
+		$operaciones = Log::obtenerLogsPorSector($sector);
+		
+		
+		$payload = json_encode(array("listaOperaciones" => $operaciones));
 
 		$response->getBody()->write($payload);
 		return $response
