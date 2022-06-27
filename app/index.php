@@ -40,6 +40,7 @@ $app->group('/login', function (RouteCollectorProxy $group) {
     $group->post('[/]', \UsuarioController::class . ':VerificarCredenciales');
 });
 
+// USUARIOS
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':traerTodos');
     $group->get('/{nombre}', \UsuarioController::class . ':traerUno');
@@ -55,6 +56,7 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
 })->add(\AutentificadorJWT::class . ':verificarAcceso');
 
 
+// PRODUCTOS
 $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->get('[/]', \ProductoController::class . ':traerTodos');
     $group->get('/{nombre}', \ProductoController::class . ':traerUno');
@@ -68,12 +70,13 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
 	$group->post('/ImportarCSV', \ProductoController::class . ':ImportarCSV')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
-    $group->post('[/]', \ProductoController::class . ':borrarUno')
+    $group->post('/borrarUno', \ProductoController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
 })->add(\AutentificadorJWT::class . ':verificarAcceso');
 
 
+// PEDIDOS
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->get('[/]', \PedidoController::class . ':traerTodos');
     $group->get('/pendientes', \PedidoController::class . ':traerPendientes');
@@ -93,13 +96,14 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 })->add(\AutentificadorJWT::class . ':verificarAcceso');
 
-
+// ENCUESTAS
 $app->group('/encuestas', function (RouteCollectorProxy $group) {
     $group->get('/mejores', \PedidoController::class . ':traerMejoresComentarios');
     $group->post('/cargarUno', \PedidoController::class . ':cargarEncuesta');
 })->add(\AutentificadorJWT::class . ':verificarAcceso');
 
 
+// MESAS
 $app->group('/mesas', function (RouteCollectorProxy $group) {
     $group->get('[/]', \MesaController::class . ':traerTodos');
     $group->get('/masUsada', \MesaController::class . ':traerMesaMasUsada');
