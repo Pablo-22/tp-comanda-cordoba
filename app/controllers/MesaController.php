@@ -6,29 +6,36 @@ class MesaController extends Mesa implements IApiUsable
 {
 	public function cargarUno($request, $response, $args)
 	{
+		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
 
-		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
+		$usuario = AutentificadorJWT::obtenerData($token);
 
 		$codigo = $parametros['codigo'];
 		$capacidad = $parametros['capacidad'];
 
-		// Creamos la mesa
-		$mesa = new Mesa();
-		$mesa->codigo = $codigo;
-		$mesa->capacidad = $capacidad;
-		$idMesa = $mesa->crearMesa();
+		if (Mesa::obtenerMesa($codigo)) {
+			$mensaje = 'Ya existe una mesa con ese codigo';
+		} else {
+			// Creamos la mesa
+			$mesa = new Mesa();
+			$mesa->codigo = $codigo;
+			$mesa->capacidad = $capacidad;
+			$idMesa = $mesa->crearMesa();
 
-		$estadoMesa = new Estado();
-		$estadoMesa->idEntidad = $idMesa;
-		$estadoMesa->entidad = 'Mesa';
-		$estadoMesa->descripcion = Estado::getEstadoDefaultMesa();
-		$estadoMesa->usuarioCreador = $nombreUsuario;
-		$estadoMesa->guardarEstado();
+			$estadoMesa = new Estado();
+			$estadoMesa->idEntidad = $idMesa;
+			$estadoMesa->entidad = 'Mesa';
+			$estadoMesa->descripcion = Estado::getEstadoDefaultMesa();
+			$estadoMesa->usuarioCreador = $usuario->nombre;
+			$estadoMesa->guardarEstado();
 
-		$payload = json_encode(array("mensaje" => "Mesa creada con éxito"));
+			$mensaje = 'Mesa creada con éxito';
+		}
+
+		$payload = json_encode(array("mensaje" => $mensaje));
 
 		$response->getBody()->write($payload);
 		return $response
@@ -87,7 +94,7 @@ class MesaController extends Mesa implements IApiUsable
 	}
 
 	
-	public static function CerrarMesa($request, $response, $args){
+	public static function cerrarMesa($request, $response, $args){
 		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
 

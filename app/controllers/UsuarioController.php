@@ -7,6 +7,7 @@ class UsuarioController extends Usuario implements IApiUsable
 {
 	public function cargarUno($request, $response, $args)
 	{
+		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
 
 		$nombre = $parametros['nombre'];
@@ -14,26 +15,31 @@ class UsuarioController extends Usuario implements IApiUsable
 		$rol = $parametros['rol'];
 		$sector = $parametros['sector'];
 
-		// Creamos el usuario
-		$usr = new Usuario();
-		$usr->nombre = $nombre;
-		$usr->clave = $clave;
-		$usr->rol = $rol;
-		$usr->sector = $sector;
-		$idUsuario = $usr->crearUsuario();
+		if (Usuario::obtenerUsuario($nombre)) {
+			$mensaje = 'Ya existe un usuario con ese nombre';
+		} else {
+			// Creamos el usuario
+			$usuario = new Usuario();
+			$usuario->nombre = $nombre;
+			$usuario->clave = $clave;
+			$usuario->rol = $rol;
+			$usuario->sector = $sector;
+			$idUsuario = $usuario->crearUsuario();
 
-		$estadoUsuario = new Estado();
-		$estadoUsuario->idEntidad = $idUsuario;
-		$estadoUsuario->Descripcion = STATUS_USUARIO_DEFAULT;
-		$estadoUsuario->usuarioCreador = $nombre;
+			$estadoUsuario = new Estado();
+			$estadoUsuario->idEntidad = $idUsuario;
+			$estadoUsuario->Descripcion = STATUS_USUARIO_DEFAULT;
+			$estadoUsuario->usuarioCreador = $nombre;
 
-		$payload = json_encode(array("mensaje" => "Usuario creado con exito"));
+			$mensaje = 'Usuario creado con éxito';
+		}
+
+		$payload = json_encode(array("mensaje" => $mensaje));
 
 		$response->getBody()->write($payload);
 		return $response
 		->withHeader('Content-Type', 'application/json');
 	}
-
 
 	public function traerUno($request, $response, $args)
 	{

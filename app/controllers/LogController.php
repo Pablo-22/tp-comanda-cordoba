@@ -87,7 +87,7 @@ class MesaController extends Mesa implements IApiUsable
 	}
 
 	
-	public static function CerrarMesa($request, $response, $args){
+	public static function cerrarMesa($request, $response, $args){
 		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
 

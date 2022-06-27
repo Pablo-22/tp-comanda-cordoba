@@ -9,6 +9,7 @@ class PedidoController extends Pedido implements IApiUsable
 	public function cargarUno($request, $response, $args)
 	{
 		$parametros = $request->getParsedBody();
+		$mensaje = 'Ha habido un error';
 		
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
@@ -20,65 +21,79 @@ class PedidoController extends Pedido implements IApiUsable
 		$idProductos = $parametros['producto'];
 		$nombreCliente = $parametros['nombreCliente'];
 
-		$pedido = new Pedido();
-		$pedido->codigo = $codigo;
-		$pedido->codigoMesa = $codigoMesa;
-		$pedido->nombreCliente = $nombreCliente;
+		if (Pedido::obtenerPedidoFull($codigo)) { //Se busca también en los eliminados
+			$mensaje = 'El código de pedido ya existe';
+		} else {
+			$mesa = Mesa::obtenerMesa($codigoMesa);
+			if ($mesa) {
+				$pedido = new Pedido();
+				$pedido->codigo = $codigo;
+				$pedido->codigoMesa = $codigoMesa;
+				$pedido->nombreCliente = $nombreCliente;
+				
+				if (isset($_FILES['archivo']['name'])) {
+					$path = '..\\ImagenesPedidos\\' . $pedido->codigo . '.png';
+					ArchivoController::guardarArchivo($path, true, 500000, ['.png', '.jpg', '.jpeg']);
+					
+					$pedido->rutaImagen = $path;
+				}
+				$idPedido = $pedido->crearPedidoDB();
+				
+				$estadoPedido = new Estado();
+				$estadoPedido->idEntidad = $idPedido;
+				$estadoPedido->descripcion = Estado::getEstadoDefaultPedido();
+				$estadoPedido->usuarioCreador = $usuario->nombre;
+				$estadoPedido->entidad = 'Pedido';
+				
+				$estadoPedido->guardarEstado();
+				
+				$estadoMesa = new Estado();
+				$estadoMesa->idEntidad = $mesa->id;
+				$estadoMesa->descripcion = STATUS_MESA_ESPERANDO;
+				$estadoMesa->usuarioCreador = $usuario->nombre;
+				$estadoMesa->entidad = 'Mesa';
+				
+				$estadoMesa->guardarEstado();
+				
+				
+				// Se guardan los productos del pedido
+				PedidoController::guardarProductosDePedido($usuario->nombre, $codigo, $idProductos, $productos_cantidad);
 
-		if (isset($_FILES['archivo']['name'])) {
-			$path = '..\\ImagenesPedidos\\' . $pedido->codigo . '.png';
-			ArchivoController::guardarArchivo($path, true, 500000, ['.png', '.jpg', '.jpeg']);
-	
-			$pedido->rutaImagen = $path;
+				$mensaje = 'Pedido creado con éxito';
+				
+				$log = new Log();
+				$log->idUsuarioCreador = $usuario->id;
+				$log->descripcion = Log::obtenerDescripcionLogCrearPedido();
+				$log->guardarLog();
+			} else {
+				$mensaje = 'La mesa no existe';
+			}
 		}
-		$idPedido = $pedido->crearPedidoDB();
-
-		$estadoPedido = new Estado();
-		$estadoPedido->idEntidad = $idPedido;
-		$estadoPedido->descripcion = Estado::getEstadoDefaultPedido();
-		$estadoPedido->usuarioCreador = $usuario->nombre;
-		$estadoPedido->entidad = 'Pedido';
-
-		$estadoPedido->guardarEstado();
-
-		$estadoMesa = new Estado();
-		$estadoMesa->idEntidad = MesaController::obtenerMesa($codigoMesa)->id;
-		$estadoMesa->descripcion = STATUS_MESA_ESPERANDO;
-		$estadoMesa->usuarioCreador = $usuario->nombre;
-		$estadoMesa->entidad = 'Mesa';
-
-		$estadoMesa->guardarEstado();
-
-		
-		// Se guardan los productos del pedido
-		PedidoController::guardarProductosDePedido($usuario->nombre, $codigo, $idProductos, $productos_cantidad);
-
-		$log = new Log();
-		$log->idUsuarioCreador = $usuario->id;
-		$log->descripcion = Log::obtenerDescripcionLogCrearPedido();
-		$log->guardarLog();
-
-		$payload = json_encode(array("mensaje" => "Pedido creado con exito"));
+			
+		$payload = json_encode(array("mensaje" => $mensaje));
 
 		$response->getBody()->write($payload);
 		return $response
 			->withHeader('Content-Type', 'application/json');
 	}
 
-	public function cargarFotoPedido(){
+	public function cargarFotoPedido($request, $response, $args){
 		$mensaje = 'Ha habido un error';
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
 		$usuario = AutentificadorJWT::obtenerData($token);
+		$parametros = $request->getParsedBody();
+
+		$codigo = $parametros['codigo'];
 
 		if ($usuario->rol == 'socio' || $usuario->rol == 'mozo') {
-			$pedido = Pedido::obtenerPedido();
+			$pedido = Pedido::obtenerPedido($codigo);
 			$path = '..\\ImagenesPedidos\\' . $pedido->codigo . '.png';
 			ArchivoController::guardarArchivo($path, true, 500000, ['.png', '.jpg', '.jpeg']);
 
 			$pedido->rutaImagen = $path;
 
-			$pedido->modificarPedidoDB();
+			Pedido::modificarPedidoDB($pedido);
 		}else {
 			$mensaje = 'Acceso denegado o permisos insuficientes';
 		}
@@ -88,7 +103,7 @@ class PedidoController extends Pedido implements IApiUsable
 		$log->descripcion = Log::obtenerDescripcionLogCrearPedido();
 		$log->guardarLog();
 
-		$payload = json_encode(array("mensaje" => "Pedido creado con exito"));
+		$payload = json_encode(array("mensaje" => "Se cargó correctamente la foto del pedido " . $codigo));
 
 		$response->getBody()->write($payload);
 		return $response
@@ -135,25 +150,81 @@ class PedidoController extends Pedido implements IApiUsable
 		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
 
 		$lista = Pedido::obtenerPedidosPendientesDB();
-
-		foreach ($lista as $pedido) {
-			$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($pedido->codigo);
-			foreach ($pedido->productosPedidos as $producto) {
-				$producto->producto = Producto::obtenerProducto($producto->idProducto);
+		if ($lista) {
+			foreach ($lista as $pedido) {
+				if ($pedido) {
+					$pedido->rellenarPedido();
+				}
 			}
 
-			$pedido->tiempoEstimado = max(array_map(function($productoPedido) {
-				return $productoPedido->tiempoEstimado;
-			}, $pedido->productosPedidos));
-	
-		}
+			$payload = json_encode(array("listaPedido" => $lista));
 
-		$payload = json_encode(array("listaPedido" => $lista));
+		}else {
+			$payload = json_encode(array("mensaje" => 'No hay pedidos pendientes'));
+		}
 
 		$response->getBody()->write($payload);
 		return $response
 			->withHeader('Content-Type', 'application/json');
 	}
+
+	public function obtenerTodosPorEstado($request, $response, $args)
+	{
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
+
+		$estado = $args['estado'];
+
+		$lista = Pedido::obtenerPedidosPorEstado($estado);
+		if ($lista) {
+			$payload = json_encode(array("listaPedido" => $lista));
+		}else {
+			$payload = json_encode(array("mensaje" => 'No hay pedidos con el estado ' . $estado));
+		}
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+	public function traerPendientesPorRol($request, $response, $args)
+	{
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$usuario = AutentificadorJWT::obtenerData($token);
+
+		$lista = ProductoPedido::obtenerProductosPendientesPorRol($usuario->rol);
+		if ($lista) {
+			$payload = json_encode(array("productosPendientes" => $lista));
+		}else {
+			$payload = json_encode(array("mensaje" => 'No hay pedidos pendientes'));
+		}
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+
+	public function traerProductosListos($request, $response, $args)
+	{
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$usuario = AutentificadorJWT::obtenerData($token);
+
+		$lista = ProductoPedido::obtenerProductosListosPorRol($usuario->rol);
+		if ($lista) {
+			$payload = json_encode(array("productosPendientes" => $lista));
+		}else {
+			$payload = json_encode(array("mensaje" => 'No hay pedidos pendientes'));
+		}
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
 	
 	public function modificarUno($request, $response, $args)
 	{
@@ -181,8 +252,9 @@ class PedidoController extends Pedido implements IApiUsable
 
 		$parametros = $request->getParsedBody();
 
-		$usuarioId = $parametros['id'];
+		$id = $parametros['id'];
 		Pedido::borrarPedidoDB($id);
+		ProductoPedido::borrarProductosDePedidoDB($id);
 
 		$payload = json_encode(array("mensaje" => "Pedido borrado con exito"));
 
@@ -299,7 +371,6 @@ class PedidoController extends Pedido implements IApiUsable
 				$estado_usuario->usuarioCreador = $usuario->nombre;
 				$estado_usuario->guardarEstado();
 
-
 				$pedido = Pedido::obtenerPedido($codigoPedido);
 
 				if ($pedido->estaListo()) {
@@ -318,6 +389,8 @@ class PedidoController extends Pedido implements IApiUsable
 			} else {
 				$mensaje = 'El producto no está en preparación';
 			}
+		} else {
+			$mensaje = 'Permisos insuficientes para terminar la preparación del producto';
 		}
 
 		$payload = json_encode(array("mensaje" => $mensaje));

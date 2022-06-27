@@ -6,6 +6,7 @@ class ProductoController extends Producto implements IApiUsable
 {
 	public function cargarUno($request, $response, $args)
 	{
+		$mensaje = 'Ha habido un error';
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
 		$nombre = AutentificadorJWT::obtenerData($token);
@@ -18,20 +19,26 @@ class ProductoController extends Producto implements IApiUsable
 		$precio = $parametros['precio'];
 		$rolEncargado = $parametros['rolEncargado'];
 
-		// Creamos el producto
-		$prd = new Producto();
-		$prd->nombre = $nombre;
-		$prd->tiempoEstimado = $tiempoEstimado;
-		$prd->precio = $precio;
-		$prd->rolEncargado = $rolEncargado;
-		$prd->crearProducto();
+		if (Producto::obtenerProducto($nombre)) {
+			$mensaje = 'Ya existe un producto con ese nombre';
+		} else {
+			// Creamos el producto
+			$producto = new Producto();
+			$producto->nombre = $nombre;
+			$producto->tiempoEstimado = $tiempoEstimado;
+			$producto->precio = $precio;
+			$producto->rolEncargado = $rolEncargado;
+			$idProducto = $producto->crearProducto();
 
-		$log = new Log();
-		$log->idUsuarioCreador = $usuario->id;
-		$log->descripcion = Log::obtenerDescripcionLogCargarProducto();
-		$log->guardarLog();
+			$log = new Log();
+			$log->idUsuarioCreador = $usuario->id;
+			$log->descripcion = Log::obtenerDescripcionLogCargarProducto();
+			$log->guardarLog();
 
-		$payload = json_encode(array("mensaje" => "Producto creado con exito"));
+			$mensaje = 'Producto creado con éxito';
+		}		
+
+		$payload = json_encode(array("mensaje" => $mensaje));
 
 		$response->getBody()->write($payload);
 		return $response

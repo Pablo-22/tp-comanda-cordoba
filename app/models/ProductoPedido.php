@@ -100,6 +100,116 @@ class ProductoPedido
         return $consulta->fetchObject('ProductoPedido');
 	}
 
+	public static function obtenerProductosPendientesDB() {
+		$objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            SELECT PP.id, 
+                PS.codigo AS codigoPedido, 
+                PP.cantidad, 
+                PP.idProducto,
+                PR.nombre AS nombreProducto,
+				PP.tiempoEstimado,
+				E.descripcion AS estado
+            FROM productos_pedidos PP
+                JOIN productos PR ON PR.id = PP.idProducto
+				JOIN pedidos PS ON PS.id = PP.idPedido
+
+				LEFT JOIN ( -- Obtener el último estado
+					SELECT EP.idEntidad AS idProductoPedido, EP.descripcion
+					FROM estados_productos_pedidos EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS idProductoPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_productos_pedidos
+							GROUP BY idEntidad
+						) EP2 ON EP2.idProductoPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idProductoPedido = PP.id
+            WHERE PP.fechaBaja IS NULL
+				AND E.descripcion = 'Pendiente'
+        ");
+        $consulta->execute();
+
+        return $consulta->fetchObject('ProductoPedido');
+	}
+
+	public static function obtenerProductosPendientesPorRolDB($rol) {
+		$objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            SELECT PP.id, 
+                PS.codigo AS codigoPedido, 
+                PP.cantidad, 
+                PP.idProducto,
+                PR.nombre AS nombreProducto,
+				PP.tiempoEstimado,
+				E.descripcion AS estado
+            FROM productos_pedidos PP
+                JOIN productos PR ON PR.id = PP.idProducto
+				JOIN pedidos PS ON PS.id = PP.idPedido
+
+				LEFT JOIN ( -- Obtener el último estado
+					SELECT EP.idEntidad AS idProductoPedido, EP.descripcion
+					FROM estados_productos_pedidos EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS idProductoPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_productos_pedidos
+							GROUP BY idEntidad
+						) EP2 ON EP2.idProductoPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idProductoPedido = PP.id
+            WHERE PP.fechaBaja IS NULL
+				AND E.descripcion = 'Pendiente'
+				AND (PR.idRolEncargado = (SELECT id FROM roles WHERE descripcion = :rol1) OR :rol2 = 'socio')
+        ");
+        $consulta->bindValue(':rol1', $rol, PDO::PARAM_STR);
+        $consulta->bindValue(':rol2', $rol, PDO::PARAM_STR);
+        $consulta->execute();
+
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'ProductoPedido');
+	}
+
+
+	public static function obtenerProductosListosPorRolDB($rol) {
+		$objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            SELECT PP.id, 
+                PS.codigo AS codigoPedido, 
+                PP.cantidad, 
+                PP.idProducto,
+                PR.nombre AS nombreProducto,
+				PP.tiempoEstimado,
+				E.descripcion AS estado
+            FROM productos_pedidos PP
+                JOIN productos PR ON PR.id = PP.idProducto
+				JOIN pedidos PS ON PS.id = PP.idPedido
+
+				LEFT JOIN ( -- Obtener el último estado
+					SELECT EP.idEntidad AS idProductoPedido, EP.descripcion
+					FROM estados_productos_pedidos EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS idProductoPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_productos_pedidos
+							GROUP BY idEntidad
+						) EP2 ON EP2.idProductoPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idProductoPedido = PP.id
+            WHERE PP.fechaBaja IS NULL
+				AND E.descripcion = 'Listo para servir'
+				AND (PR.idRolEncargado = (SELECT id FROM roles WHERE descripcion = :rol1) OR :rol2 = 'socio')
+        ");
+
+        $consulta->bindValue(':rol1', $rol, PDO::PARAM_STR);
+        $consulta->bindValue(':rol2', $rol, PDO::PARAM_STR);
+        $consulta->execute();
+
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'ProductoPedido');
+	}
+
 
 	public static function modificarProductoPedido($productoPedido)
     {
@@ -120,4 +230,50 @@ class ProductoPedido
         $consulta->bindValue(':tiempoEstimado', $productoPedido->tiempoEstimado, PDO::PARAM_INT);
         $consulta->execute();
     }
+
+	public static function obtenerProductosPendientesPorRol($rol) {
+		$productosPendientes = ProductoPedido::obtenerProductosPendientesPorRolDB($rol);
+
+		if ($productosPendientes) {
+			foreach ($productosPendientes as $productoPedido) {
+				if ($productoPedido) {
+					$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
+					if($productoPedido->producto->tiempoEstimado) {
+						$productoPedido->tiempoEstimado = $productoPedido->producto->tiempoEstimado;
+					}
+				}
+			}
+		}
+
+		return $productosPendientes;
+	}
+
+	public static function obtenerProductosListosPorRol($rol) {
+		$productosListos = ProductoPedido::obtenerProductosListosPorRolDB($rol);
+
+		if ($productosListos) {
+			foreach ($productosListos as $productoPedido) {
+				if ($productoPedido) {
+					$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
+					if($productoPedido->producto->tiempoEstimado) {
+						$productoPedido->tiempoEstimado = $productoPedido->producto->tiempoEstimado;
+					}
+				}
+			}
+		}
+
+		return $productosListos;
+	}
+
+	public static function borrarProductosDePedidoDB($idPedido) {
+		$objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("
+            UPDATE productos_pedidos 
+			SET fechaBaja = :fechaBaja WHERE idPedido = :idPedido
+        ");
+        $fecha = new DateTime(date("d-m-Y"));
+        $consulta->bindValue(':idPedido', $idPedido, PDO::PARAM_INT);
+        $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
+        $consulta->execute();
+	}
 }

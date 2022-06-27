@@ -11,6 +11,7 @@ class Pedido
 	public $precioTotal;
 	public $estado;
 	public $tiempoEstimado;
+	public $tiempoFinal;
 
     public function crearPedidoDB()
     {
@@ -24,7 +25,7 @@ class Pedido
                 :nombreCliente AS nombreCliente
             FROM mesas M
             WHERE M.codigo = :codigoMesa
-        ");
+		");
 
         $consulta->bindValue(':codigoPedido', $this->codigo, PDO::PARAM_STR);
         $consulta->bindValue(':rutaImagen', $this->rutaImagen, PDO::PARAM_STR);
@@ -44,7 +45,13 @@ class Pedido
                 P.rutaImagen, 
                 R.codigo as codigoMesa,
                 P.nombreCliente,
-                E.descripcion as estado
+                E.descripcion as estado,
+
+				TIMESTAMPDIFF(MINUTE, 
+   					(EP.fechaInsercion),
+    				(EP2.fechaInsercion)
+				) AS tiempoFinal
+
             FROM pedidos P
                 JOIN mesas R ON R.id = P.idMesa
 
@@ -60,6 +67,11 @@ class Pedido
 						) EP2 ON EP2.IdPedido = EP.idEntidad 
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.IdPedido = P.id
+
+				LEFT JOIN estados_pedidos EP ON EP.idEntidad = P.id AND EP.descripcion = 'Pendiente'
+				LEFT JOIN estados_pedidos EP2 ON EP2.idEntidad = P.id AND EP2.descripcion = 'Pedido Entregado'
+
+			WHERE P.fechaBaja IS NULL
         ");
         $consulta->execute();
 
@@ -75,7 +87,12 @@ class Pedido
                 P.rutaImagen, 
                 M.codigo as codigoMesa,
                 P.nombreCliente,
-                E.descripcion as estado
+                E.descripcion as estado,
+
+				TIMESTAMPDIFF(MINUTE, 
+   					(EP.fechaInsercion),
+    				(EP2.fechaInsercion)
+				) AS tiempoFinal
 			FROM pedidos P
                 JOIN mesas M ON M.id = P.idMesa
 
@@ -91,8 +108,55 @@ class Pedido
 						) EP2 ON EP2.IdPedido = EP.idEntidad 
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.IdPedido = P.id
+
+				LEFT JOIN estados_pedidos EP ON EP.idEntidad = P.id AND EP.descripcion = 'Pendiente'
+				LEFT JOIN estados_pedidos EP2 ON EP2.idEntidad = P.id AND EP2.descripcion = 'Pedido Entregado'
+
             WHERE P.codigo = :codigoPedido
-        ");
+				AND P.fechaBaja IS NULL
+		");
+        $consulta->bindValue(':codigoPedido', $codigo, PDO::PARAM_STR);
+        $consulta->execute();
+
+        return $consulta->fetchObject('Pedido');
+    }
+
+	public static function obtenerPedidoFullDB($codigo)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            SELECT P.id, 
+                P.codigo, 
+                P.rutaImagen, 
+                M.codigo as codigoMesa,
+                P.nombreCliente,
+                E.descripcion as estado,
+
+				TIMESTAMPDIFF(MINUTE, 
+   					(EP.fechaInsercion),
+    				(EP2.fechaInsercion)
+				) AS tiempoFinal
+			FROM pedidos P
+                JOIN mesas M ON M.id = P.idMesa
+
+				JOIN ( -- Obtener el último estado de cada pedido
+					SELECT EP.idEntidad AS IdPedido, EP.descripcion
+					FROM estados_pedidos EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS IdPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_pedidos
+							GROUP BY idEntidad
+						) EP2 ON EP2.IdPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.IdPedido = P.id
+
+				LEFT JOIN estados_pedidos EP ON EP.idEntidad = P.id AND EP.descripcion = 'Pendiente'
+				LEFT JOIN estados_pedidos EP2 ON EP2.idEntidad = P.id AND EP2.descripcion = 'Pedido Entregado'
+
+            WHERE P.codigo = :codigoPedido
+		");
         $consulta->bindValue(':codigoPedido', $codigo, PDO::PARAM_STR);
         $consulta->execute();
 
@@ -108,7 +172,12 @@ class Pedido
 				P.rutaImagen, 
 				M.codigo as codigoMesa,
 				P.nombreCliente,
-                E.descripcion as estado
+                E.descripcion as estado,
+
+				TIMESTAMPDIFF(MINUTE, 
+   					(EP.fechaInsercion),
+    				(EP2.fechaInsercion)
+				) AS tiempoFinal
 			FROM pedidos P
 				JOIN mesas M ON M.id = P.idMesa
 			
@@ -124,9 +193,13 @@ class Pedido
 						) EP2 ON EP2.IdPedido = EP.idEntidad 
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.IdPedido = P.id
+
+				LEFT JOIN estados_pedidos EP ON EP.idEntidad = P.id AND EP.descripcion = 'Pendiente'
+				LEFT JOIN estados_pedidos EP2 ON EP2.idEntidad = P.id AND EP2.descripcion = 'Pedido Entregado'
 			
-			WHERE E.Descripcion NOT IN ('Pedido entregado', 'En preparación', 'Listo para servir')
-        ");
+			WHERE E.Descripcion = 'Pendiente'
+				AND P.fechaBaja IS NULL
+		");
         $consulta->execute();
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
     }
@@ -172,7 +245,12 @@ class Pedido
 				P.rutaImagen, 
 				M.codigo as codigoMesa,
 				P.nombreCliente,
-				E.descripcion as estado
+				E.descripcion as estado,
+
+				TIMESTAMPDIFF(MINUTE, 
+   					(EP.fechaInsercion),
+					(EP2.fechaInsercion)
+				) AS tiempoFinal
 			FROM pedidos P
 				JOIN mesas M ON M.id = P.idMesa
 				LEFT JOIN ( -- Obtener el último estado de cada pedido
@@ -187,7 +265,11 @@ class Pedido
 						) EP2 ON EP2.IdPedido = EP.idEntidad 
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.IdPedido = P.id
+
+				LEFT JOIN estados_pedidos EP ON EP.idEntidad = P.id AND EP.descripcion = 'Pendiente'
+				LEFT JOIN estados_pedidos EP2 ON EP2.idEntidad = P.id AND EP2.descripcion = 'Pedido Entregado'
 			WHERE M.codigo = :codigoMesa
+				AND P.fechaBaja IS NULL
 		");
 
 		$consulta->bindValue(':codigoMesa', $codigoMesa, PDO::PARAM_STR);
@@ -195,21 +277,47 @@ class Pedido
 		return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
 	}
 
-	public static function obtenerPedido($codigoPedido) {
-		$pedido = Pedido::obtenerPedidoDB($codigoPedido);
-
-		$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($codigoPedido);
-		foreach ($pedido->productosPedidos as $producto) {
-			$producto->producto = Producto::obtenerProducto($producto->idProducto);
+	public function rellenarPedido(){
+		$this->productosPedidos = ProductoPedido::obtenerProductosDePedido($this->codigo);
+		foreach ($this->productosPedidos as $productoPedido) {
+			$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
+			if($productoPedido->producto->tiempoEstimado && $productoPedido->tiempoEstimado == null) {
+				$productoPedido->tiempoEstimado = $productoPedido->producto->tiempoEstimado;
+			}
 		}
 
-		$pedido->tiempoEstimado = max(array_map(function($productoPedido) {
-			return $productoPedido->tiempoEstimado;
-		}, $pedido->productosPedidos));
+		$this->tiempoEstimado = max(array_map(function($productoPedido) {
+			if ($productoPedido) {
+				if($productoPedido->tiempoEstimado) {
+					return $productoPedido->tiempoEstimado;
+				}
+				return null;
+			}
+		}, $this->productosPedidos));
 
-		$pedido->precioTotal = array_sum(array_map(function($productoPedido) {
-			return $productoPedido->cantidad * $productoPedido->producto->precio;
-		}, $pedido->productosPedidos));
+		$this->precioTotal = array_sum(array_map(function($productoPedido) {
+			if ($productoPedido && $productoPedido->producto) {
+				return $productoPedido->cantidad * $productoPedido->producto->precio;
+			} else {
+				return null;
+			}
+		}, $this->productosPedidos));
+	}
+
+	public static function obtenerPedido($codigoPedido) {
+		$pedido = Pedido::obtenerPedidoDB($codigoPedido);
+		if ($pedido) {
+			$pedido->rellenarPedido();
+		}
+
+		return $pedido;
+	}
+
+	public static function obtenerPedidoFull($codigoPedido) {
+		$pedido = Pedido::obtenerPedidoFullDB($codigoPedido);
+		if ($pedido) {
+			$pedido->rellenarPedido();
+		}
 
 		return $pedido;
 	}
@@ -218,18 +326,25 @@ class Pedido
 		$lista = Pedido::obtenerTodosDB();
 
 		foreach ($lista as $pedido) {
-			$pedido->productosPedidos = ProductoPedido::obtenerProductosDePedido($pedido->codigo);
-			foreach ($pedido->productosPedidos as $producto) {
-				$producto->producto = Producto::obtenerProducto($producto->idProducto);
+			if ($pedido) {
+				$pedido->rellenarPedido();
 			}
+		}
 
-			$pedido->tiempoEstimado = max(array_map(function($productoPedido) {
-				return $productoPedido->tiempoEstimado;
-			}, $pedido->productosPedidos));
+		return $lista;
+	}
 
-			$pedido->precioTotal = array_sum(array_map(function($productoPedido) {
-				return $productoPedido->cantidad * $productoPedido->producto->precio;
-			}, $pedido->productosPedidos));
+	public static function obtenerPedidosPorEstado($estado){
+		$lista = Pedido::obtenerTodosDB();
+
+		$lista = array_filter($lista, function($pedido) use ($estado) {
+			return $pedido->estado == $estado;
+		});
+
+		foreach ($lista as $pedido) {
+			if ($pedido) {
+				$pedido->rellenarPedido();
+			}
 		}
 
 		return $lista;
