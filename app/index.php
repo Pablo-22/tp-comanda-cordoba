@@ -52,7 +52,7 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
 
     $group->post('[/]', \UsuarioController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
-})->add(\AutentificadorJWT::class . ':VerificarAcceso');
+})->add(\AutentificadorJWT::class . ':verificarAcceso');
 
 
 $app->group('/productos', function (RouteCollectorProxy $group) {
@@ -71,7 +71,7 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->post('[/]', \ProductoController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
-})->add(\AutentificadorJWT::class . ':VerificarAcceso');
+})->add(\AutentificadorJWT::class . ':verificarAcceso');
 
 
 $app->group('/pedidos', function (RouteCollectorProxy $group) {
@@ -91,13 +91,13 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
 
     $group->post('[/]', \PedidoController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
-})->add(\AutentificadorJWT::class . ':VerificarAcceso');
+})->add(\AutentificadorJWT::class . ':verificarAcceso');
 
 
 $app->group('/encuestas', function (RouteCollectorProxy $group) {
     $group->get('/mejores', \PedidoController::class . ':traerMejoresComentarios');
     $group->post('/cargarUno', \PedidoController::class . ':cargarEncuesta');
-})->add(\AutentificadorJWT::class . ':VerificarAcceso');
+})->add(\AutentificadorJWT::class . ':verificarAcceso');
 
 
 $app->group('/mesas', function (RouteCollectorProxy $group) {
@@ -114,7 +114,7 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
 	
     $group->post('[/]', \MesaController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
-})->add(\AutentificadorJWT::class . ':VerificarAcceso');
+})->add(\AutentificadorJWT::class . ':verificarAcceso');
 
 
 $app->get('[/]', function (Request $request, Response $response) {    

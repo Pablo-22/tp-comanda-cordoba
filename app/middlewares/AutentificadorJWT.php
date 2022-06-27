@@ -11,20 +11,20 @@ class AutentificadorJWT
     private static $claveSecreta = 'T3sT$JWT';
     private static $tipoEncriptacion = ['HS256'];
 
-    public static function CrearToken($datos)
+    public static function crearToken($datos)
     {
         $ahora = time();
         $payload = array(
             'iat' => $ahora,
             'exp' => $ahora + (60000),
-            'aud' => self::Aud(),
+            'aud' => self::aud(),
             'data' => $datos,
             'app' => "TP1"
         );
         return JWT::encode($payload, self::$claveSecreta);
     }
 
-    public static function VerificarToken($token)
+    public static function verificarToken($token)
     {
         if (empty($token)) {
             throw new Exception("El token esta vacio.");
@@ -38,13 +38,13 @@ class AutentificadorJWT
         } catch (Exception $e) {
             throw $e;
         }
-        if ($decodificado->aud !== self::Aud()) {
+        if ($decodificado->aud !== self::aud()) {
             throw new Exception("No es el usuario valido");
         }
     }
 
 
-    public static function ObtenerPayLoad($token)
+    public static function obtenerPayLoad($token)
     {
         if (empty($token)) {
             throw new Exception("El token esta vacio.");
@@ -65,7 +65,7 @@ class AutentificadorJWT
         )->data;
     }
 
-    private static function Aud()
+    private static function aud()
     {
         $aud = '';
 
@@ -83,14 +83,14 @@ class AutentificadorJWT
         return sha1($aud);
     }
 
-	public static function VerificarAcceso($request, $handler){
+	public static function verificarAcceso($request, $handler){
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
 		$response = new Response();
 
 		if (!empty($token)) {
 			try {
-				AutentificadorJWT::VerificarToken($token);
+				AutentificadorJWT::verificarToken($token);
 			} catch (\Throwable $th) {
 				$response->getBody()->write(json_encode( array('mensaje' => 'El token no es válido')));
 				return $response
