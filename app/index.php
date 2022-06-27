@@ -88,15 +88,23 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->post('/entregarPedido', \PedidoController::class . ':entregarPedido');
     $group->post('/modificarUno', \PedidoController::class . ':modificarUno');
     $group->post('/cobrarPedido', \PedidoController::class . ':cobrarPedido');
-    $group->post('/cargarEncuesta', \PedidoController::class . ':cargarEncuesta');
 
     $group->post('[/]', \PedidoController::class . ':borrarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 })->add(\AutentificadorJWT::class . ':VerificarAcceso');
 
 
+$app->group('/encuestas', function (RouteCollectorProxy $group) {
+    $group->get('/mejores', \PedidoController::class . ':traerMejoresComentarios');
+    $group->post('/cargarUno', \PedidoController::class . ':cargarEncuesta');
+})->add(\AutentificadorJWT::class . ':VerificarAcceso');
+
+
 $app->group('/mesas', function (RouteCollectorProxy $group) {
     $group->get('[/]', \MesaController::class . ':traerTodos');
+    $group->get('/masUsada', \MesaController::class . ':traerMesaMasUsada');
+
+
     $group->get('/{nombre}', \MesaController::class . ':traerUno');
     $group->post('/cargarUno', \MesaController::class . ':cargarUno');
     $group->post('/modificarUno', \MesaController::class . ':modificarUno')

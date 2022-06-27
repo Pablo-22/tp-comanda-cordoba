@@ -64,16 +64,16 @@ class Mesa
 				E.descripcion AS estado
             FROM mesas M
 				LEFT JOIN ( -- Obtener el último estado
-				SELECT EP.idEntidad AS idMesa, EP.descripcion
-				FROM estados_mesas EP
-					JOIN (
-						SELECT id, 
-							idEntidad AS idMesa, 
-							MAX(fechaInsercion) AS fechaInsercion
-						FROM estados_mesas
-						GROUP BY idEntidad
-					) EP2 ON EP2.idMesa = EP.idEntidad 
-							AND EP2.fechaInsercion = EP.fechaInsercion
+					SELECT EP.idEntidad AS idMesa, EP.descripcion
+					FROM estados_mesas EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS idMesa, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_mesas
+							GROUP BY idEntidad
+						) EP2 ON EP2.idMesa = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.idMesa = M.id
             WHERE M.codigo = :codigoMesa
 				AND M.fechaBaja IS NULL
@@ -90,8 +90,21 @@ class Mesa
         $consulta = $objAccesoDatos->prepararConsulta("
             SELECT M.id, 
                 M.codigo, 
-                M.capacidad
+                M.capacidad,
+				E.descripcion AS estado
             FROM mesas M
+				LEFT JOIN ( -- Obtener el último estado
+				SELECT EP.idEntidad AS idMesa, EP.descripcion
+				FROM estados_mesas EP
+					JOIN (
+						SELECT id, 
+							idEntidad AS idMesa, 
+							MAX(fechaInsercion) AS fechaInsercion
+						FROM estados_mesas
+						GROUP BY idEntidad
+					) EP2 ON EP2.idMesa = EP.idEntidad 
+							AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idMesa = M.id
             WHERE M.codigo = :codigoMesa
 		");
         $consulta->bindValue(':codigoMesa', $codigo, PDO::PARAM_STR);
@@ -107,9 +120,23 @@ class Mesa
 			SELECT 
 				M.id, 
 				M.codigo, 
-				M.capacidad
+				M.capacidad,
+				E.descripcion AS estado
 			FROM pedidos P
 				JOIN mesas M ON M.id = P.idMesa
+
+				LEFT JOIN ( -- Obtener el último estado
+				SELECT EP.idEntidad AS idMesa, EP.descripcion
+				FROM estados_mesas EP
+					JOIN (
+						SELECT id, 
+							idEntidad AS idMesa, 
+							MAX(fechaInsercion) AS fechaInsercion
+						FROM estados_mesas
+						GROUP BY idEntidad
+					) EP2 ON EP2.idMesa = EP.idEntidad 
+							AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idMesa = M.id
 			WHERE M.fechaBaja IS NULL
 			GROUP BY M.id, M.codigo, M.capacidad
 			HAVING COUNT(1) = (SELECT COUNT(1) FROM pedidos P GROUP BY P.idMesa ORDER BY COUNT(1) DESC LIMIT 1)

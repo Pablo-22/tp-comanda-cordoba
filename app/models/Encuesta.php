@@ -36,11 +36,14 @@ class Encuesta
 				:descripcion
         ");
 
-        $idPedidoHash = password_hash($this->idPedido, PASSWORD_DEFAULT);
-        $consulta->bindValue(':idMesaEncuesta', $this->idMesa, PDO::PARAM_STR);
-        $consulta->bindValue(':idPedido', $idPedidoHash);
-        $consulta->bindValue(':puntuacionMesa', $this->puntuacionMesa, PDO::PARAM_STR);
-        $consulta->execute();
+        $consulta->bindValue(':codigoMesa', $this->codigoMesa, PDO::PARAM_STR);
+		$consulta->bindValue(':codigoPedido', $this->codigoPedido, PDO::PARAM_STR);
+		$consulta->bindValue(':puntuacionMesa', $this->puntuacionMesa, PDO::PARAM_INT);
+		$consulta->bindValue(':puntuacionMozo', $this->puntuacionMozo, PDO::PARAM_INT);
+		$consulta->bindValue(':puntuacionCocinero', $this->puntuacionCocinero, PDO::PARAM_INT);
+		$consulta->bindValue(':puntuacionRestaurante', $this->puntuacionRestaurante, PDO::PARAM_INT);
+		$consulta->bindValue(':descripcion', $this->descripcion, PDO::PARAM_STR);
+		$consulta->execute();
 
         return $objAccesoDatos->obtenerUltimoId();
     }
@@ -65,27 +68,27 @@ class Encuesta
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Encuesta');
     }
 
-	public static function ObtenerMejores()
+	public static function ObtenerMejorPuntaje()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
-            SELECT E.id
+            SELECT (E.puntuacionMesa + E.puntuacionMozo + E.puntuacionCocinero + E.puntuacionRestaurante) as puntaje
 			FROM encuestas E
 			WHERE E.fechaBaja IS NULL
-			ORDER BY SUM(E.puntuacionMesa + E.puntuacionMozo + E.puntuacionCocinero + E.puntuacionRestaurante) DESC
-			LIMIT 3
+			ORDER BY (E.puntuacionMesa + E.puntuacionMozo + E.puntuacionCocinero + E.puntuacionRestaurante) DESC
+			LIMIT 1
         ");
         $consulta->execute();
 
-        return $consulta->fetchAll();
+        return $consulta->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function obtenerEncuestaDB($idMesa)
+    public static function obtenerEncuestaPorCodigoPedidoDB($codigoPedido)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
 			SELECT E.id, 
-				M.codigo AS codigoMesa,, 
+				M.codigo AS codigoMesa,
 				P.codigo AS codigoPedido, 
 				E.puntuacionMesa, 
 				E.puntuacionMozo,
@@ -95,13 +98,61 @@ class Encuesta
 			FROM encuestas E
 				JOIN pedidos P ON P.id = E.idPedido
 				JOIN mesas M ON M.id = E.idMesa
-			WHERE E.Id = :idEncuesta
+			WHERE P.codigo = :codigoPedido
 				AND E.fechaBaja IS NULL
 		");
-        $consulta->bindValue(':idEncuesta', $idEncuesta, PDO::PARAM_STR);
+        $consulta->bindValue(':codigoPedido', $codigoPedido, PDO::PARAM_STR);
         $consulta->execute();
 
         return $consulta->fetchObject('Encuesta');
+    }
+
+	public static function obtenerEncuestaDB($id)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+			SELECT E.id, 
+				M.codigo AS codigoMesa,
+				P.codigo AS codigoPedido, 
+				E.puntuacionMesa, 
+				E.puntuacionMozo,
+				E.puntuacionCocinero,
+				E.puntuacionRestaurante,
+				E.descripcion
+			FROM encuestas E
+				JOIN pedidos P ON P.id = E.idPedido
+				JOIN mesas M ON M.id = E.idMesa
+			WHERE E.id = :id
+				AND E.fechaBaja IS NULL
+		");
+        $consulta->bindValue(':id', $id, PDO::PARAM_INT);
+        $consulta->execute();
+
+        return $consulta->fetchObject('Encuesta');
+    }
+
+	public static function obtenerEncuestasPorPuntajeDB($puntaje)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+			SELECT E.id, 
+				M.codigo AS codigoMesa,
+				P.codigo AS codigoPedido, 
+				E.puntuacionMesa, 
+				E.puntuacionMozo,
+				E.puntuacionCocinero,
+				E.puntuacionRestaurante,
+				E.descripcion
+			FROM encuestas E
+				JOIN pedidos P ON P.id = E.idPedido
+				JOIN mesas M ON M.id = E.idMesa
+			WHERE E.puntuacionMesa + E.puntuacionMozo + E.puntuacionCocinero + E.puntuacionRestaurante = :puntaje
+				AND E.fechaBaja IS NULL
+		");
+        $consulta->bindValue(':puntaje', $puntaje, PDO::PARAM_INT);
+        $consulta->execute();
+
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Encuesta');
     }
 
     public function modificarEncuesta()
@@ -147,33 +198,39 @@ class Encuesta
 
 	public static function ObtenerEncuesta($id){
 		$encuesta = Encuesta::obtenerEncuestaDB($id);
-
-		$encuesta->pedido = Pedido::obtenerPedidoDB($encuesta->idPedido);
-		$encuesta->mesa = Mesa::obtenerMesaDB($encuesta->idMesa);
+		if ($encuesta) {
+			$encuesta->pedido = Pedido::obtenerPedidoDB($encuesta->codigoPedido);
+			$encuesta->mesa = Mesa::obtenerMesaDB($encuesta->codigoMesa);
+		}
 
 		return $encuesta;
+	}
+
+	public function rellenarEncuesta(){
+		$this->pedido = Pedido::obtenerPedido($this->codigoPedido);
+		$this->mesa = Mesa::obtenerMesa($this->codigoMesa);
 	}
 	
 	public static function ObtenerEncuestas(){
 		$encuestas = Encuesta::obtenerEncuestasDB();
 
 		foreach($encuestas as $encuesta){
-			$encuesta->pedido = Pedido::obtenerPedidoDB($encuesta->idPedido);
-			$encuesta->mesa = Mesa::obtenerMesaDB($encuesta->idMesa);
+			$encuesta->rellenarEncuesta();
 		}
 
 		return $encuestas;
 	}
 
 	public static function ObtenerMejoresComentarios(){
-		$idEncuestas = Encuesta::ObtenerMejores();
-		$encuestas = array();
+		$puntaje = Encuesta::ObtenerMejorPuntaje()['puntaje'];
 
-		foreach($idEncuestas as $id){
-			$encuesta = Encuesta::ObtenerEncuesta($id);
-			array_push($encuestas, $encuesta);
+		var_dump($puntaje);
+		$encuestas = Encuesta::obtenerEncuestasPorPuntajeDB($puntaje);
+		foreach ($encuestas as $encuesta) {
+			if ($encuesta) {
+				$encuesta->rellenarEncuesta();
+			}
 		}
-
 		return $encuestas;
 	}
 }

@@ -120,4 +120,8 @@ class Log
 	public static function obtenerDescripcionLogCambiarMesa($mesa){
 		return 'Ha modificado la mesa ' . $mesa;
 	}
+
+	public static function obtenerDescripcionLogCargarEncuesta($codigoPedido){
+		return 'Se ha cargado la encuesta relacionada al pedido ' . $codigoPedido;
+	}
 }

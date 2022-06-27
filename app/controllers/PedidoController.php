@@ -1,5 +1,6 @@
 <?php
 require_once './models/Pedido.php';
+require_once './models/Encuesta.php';
 require_once './models/ProductoPedido.php';
 require_once 'ArchivoController.php';
 require_once './interfaces/IApiUsable.php';
@@ -77,6 +78,64 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
+
+	public function cargarEncuesta($request, $response, $args)
+	{
+		$parametros = $request->getParsedBody();
+		$mensaje = 'Ha habido un error';
+		
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$usuario = AutentificadorJWT::obtenerData($token);
+
+		$codigoPedido = $parametros['codigoPedido'];
+		$codigoMesa = $parametros['codigoMesa'];
+		$puntuacionMesa = $parametros['puntuacionMesa'];
+		$puntuacionMozo = $parametros['puntuacionMozo'];
+		$puntuacionCocinero = $parametros['puntuacionCocinero'];
+		$puntuacionRestaurante = $parametros['puntuacionRestaurante'];
+		$descripcion = $parametros['descripcion'];
+
+		$pedido = Pedido::obtenerPedido($codigoPedido);
+		$existeEncuesta = Encuesta::obtenerEncuestaDB($codigoPedido);
+		if ($pedido) {
+			$mesa = Mesa::obtenerMesa($codigoMesa);
+			if ($mesa) {
+				if ($existeEncuesta) {
+					$mensaje = 'Ya existe una encuesta para este pedido';
+				} else {
+					$encuesta = new Encuesta();
+					$encuesta->codigoMesa = $codigoMesa;
+					$encuesta->codigoPedido = $codigoPedido;
+					$encuesta->puntuacionMesa = $puntuacionMesa;
+					$encuesta->puntuacionMozo = $puntuacionMozo;
+					$encuesta->puntuacionCocinero = $puntuacionCocinero;
+					$encuesta->puntuacionRestaurante = $puntuacionRestaurante;
+					$encuesta->descripcion = $descripcion;
+					
+					$idEncuesta = $encuesta->crearEncuesta();
+
+					$mensaje = 'Encuesta creada con éxito';
+					
+					$log = new Log();
+					$log->idUsuarioCreador = $usuario->id;
+					$log->descripcion = Log::obtenerDescripcionLogCargarEncuesta($codigoPedido);
+					$log->guardarLog();
+				}
+			} else {
+				$mensaje = 'La mesa no existe';
+			}
+		} else {
+			$mensaje = 'El código de pedido no existe';
+		}
+			
+		$payload = json_encode(array("mensaje" => $mensaje));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
 	public function cargarFotoPedido($request, $response, $args){
 		$mensaje = 'Ha habido un error';
 		$token = $request->getHeaderLine('Authorization');
@@ -130,10 +189,6 @@ class PedidoController extends Pedido implements IApiUsable
 
 	public function traerTodos($request, $response, $args)
 	{
-		$token = $request->getHeaderLine('Authorization');
-		$token = trim(explode("Bearer", $token)[1]);
-		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
-
 		$lista = Pedido::obtenerTodos();
 
 		$payload = json_encode(array("listaPedido" => $lista));
@@ -143,12 +198,19 @@ class PedidoController extends Pedido implements IApiUsable
 			->withHeader('Content-Type', 'application/json');
 	}
 
+	public function traerMejoresComentarios($request, $response, $args)
+	{
+		$lista = Encuesta::ObtenerMejoresComentarios();
+
+		$payload = json_encode(array("encuestas" => $lista));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
 	public function traerPendientes($request, $response, $args)
 	{
-		$token = $request->getHeaderLine('Authorization');
-		$token = trim(explode("Bearer", $token)[1]);
-		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
-
 		$lista = Pedido::obtenerPedidosPendientesDB();
 		if ($lista) {
 			foreach ($lista as $pedido) {
@@ -170,10 +232,6 @@ class PedidoController extends Pedido implements IApiUsable
 
 	public function obtenerTodosPorEstado($request, $response, $args)
 	{
-		$token = $request->getHeaderLine('Authorization');
-		$token = trim(explode("Bearer", $token)[1]);
-		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
-
 		$estado = $args['estado'];
 
 		$lista = Pedido::obtenerPedidosPorEstado($estado);
@@ -227,11 +285,7 @@ class PedidoController extends Pedido implements IApiUsable
 
 	
 	public function modificarUno($request, $response, $args)
-	{
-		$token = $request->getHeaderLine('Authorization');
-		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::obtenerData($token);
-		
+	{		
 		$parametros = $request->getParsedBody();
 
 		$id = $parametros['id'];
