@@ -14,7 +14,7 @@ class UsuarioController extends Usuario implements IApiUsable
 		$nombre = isset($parametros['nombre']) ? $parametros['nombre'] : null;
 		$clave = isset($parametros['clave']) ? $parametros['clave'] : null;
 		$rol = isset($parametros['rol']) ? $parametros['rol'] :  null;
-		$sector = $parametros['sector'] ?: '';
+		$sector = isset($parametros['sector']) ? $parametros['sector'] : '';
 
 		if ($nombre && $clave && $rol) {
 			if (Usuario::obtenerUsuario($nombre)) {
@@ -89,7 +89,7 @@ class UsuarioController extends Usuario implements IApiUsable
 		$nombre = isset($parametros['nombre']) ? $parametros['nombre'] : null;
 		$clave = isset($parametros['clave']) ? $parametros['clave'] : null;
 		$rol = isset($parametros['rol']) ? $parametros['rol'] :  null;
-		$sector = $parametros['sector'] ?: '';
+		$sector = isset($parametros['sector']) ? $parametros['sector'] : '';
 		$id = isset($parametros['id']) ? $parametros['id'] : null;
 
 		if ($nombre && $clave && $rol && $id) {

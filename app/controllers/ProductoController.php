@@ -72,8 +72,27 @@ class ProductoController extends Producto implements IApiUsable
 	{
 		$parametros = $request->getParsedBody();
 
-		$id = $parametros['id'];
-		Producto::modificarProducto($id);
+		$id = isset($parametros['id']) ? $parametros['id'] : null;
+		$nombre = isset($parametros['nombre']) ? $parametros['nombre'] : null;
+		$tiempoEstimado = isset($parametros['tiempoEstimado']) ? $parametros['tiempoEstimado'] : null;
+		$precio = isset($parametros['precio']) ? $parametros['precio'] : null;
+		$rolEncargado = isset($parametros['rolEncargado']) ? $parametros['rolEncargado'] : null;
+
+		if ($id && $nombre && $tiempoEstimado && $precio && $rolEncargado) {
+			$producto = new Producto();
+			$producto->id = $id;
+			$producto->nombre = $nombre;
+			$producto->tiempoEstimado = $tiempoEstimado;
+			$producto->precio = $precio;
+			$producto->rolEncargado = $rolEncargado;
+			$producto->modificarProducto();
+		} else {
+			$mensaje = 'No se pudo modificar el producto. Faltan parámetros';
+			$response->getBody()->write($mensaje);
+			return $response
+				->withHeader('Content-Type', 'application/json')
+				->withStatus(400);
+		}
 
 		$payload = json_encode(array("mensaje" => "Producto modificado con exito"));
 

@@ -71,23 +71,23 @@ class Producto
         return $consulta->fetchObject('Producto');
     }
 
-    public static function modificarProducto($producto)
+    public function modificarProducto()
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
-            UPDATE productos 
-				JOIN roles R ON R.id = :rolEncargado
+            UPDATE productos AS P 
+				JOIN roles R ON R.descripcion = :rolEncargado
             SET P.nombre = :nombre, 
                 P.tiempoEstimado = :tiempoEstimado, 
                 P.precio = :precio, 
                 P.idRolEncargado = R.id
             WHERE P.id = :id
 		");
-        $consulta->bindValue(':producto', $producto->nombre, PDO::PARAM_STR);
-        $consulta->bindValue(':tiempoEstimado', $producto->tiempoEstimado);
-        $consulta->bindValue(':precio', $producto->precio);
-        $consulta->bindValue(':rolEncargado', $producto->rolEncargado, PDO::PARAM_STR);
-        $consulta->bindValue(':id', $producto->id, PDO::PARAM_INT);
+        $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
+        $consulta->bindValue(':tiempoEstimado', $this->tiempoEstimado);
+        $consulta->bindValue(':precio', $this->precio);
+        $consulta->bindValue(':rolEncargado', $this->rolEncargado, PDO::PARAM_STR);
+        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
         $consulta->execute();
     }
 

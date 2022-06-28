@@ -44,7 +44,7 @@ $app->group('/login', function (RouteCollectorProxy $group) {
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':traerTodos')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
-		
+
     $group->get('/roles', \UsuarioController::class . ':traerRoles');
 
     $group->get('/{nombre}', \UsuarioController::class . ':traerUno')
@@ -86,8 +86,10 @@ $app->group('/pedidos', function (RouteCollectorProxy $group) {
     $group->get('[/]', \PedidoController::class . ':traerTodos');
     $group->get('/pendientes', \PedidoController::class . ':traerPendientes');
     $group->get('/pendientesPorRol', \PedidoController::class . ':traerPendientesPorRol');
+    $group->get('/enPreparacionPorRol', \PedidoController::class . ':traerEnPreparacionPorRol');
     $group->get('/porEstado/{estado}', \PedidoController::class . ':obtenerTodosPorEstado');
     $group->get('/{codigo}', \PedidoController::class . ':traerUno');
+    $group->get('/tiempo/{codigo}', \PedidoController::class . ':verDemoraPedido');
 
     $group->post('/cargarUno', \PedidoController::class . ':cargarUno');
     $group->post('/cargarFotoPedido', \PedidoController::class . ':cargarFotoPedido');

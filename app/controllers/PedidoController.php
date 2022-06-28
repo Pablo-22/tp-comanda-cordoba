@@ -151,8 +151,7 @@ class PedidoController extends Pedido implements IApiUsable
 			ArchivoController::guardarArchivo($path, true, 500000, ['.png', '.jpg', '.jpeg']);
 
 			$pedido->rutaImagen = $path;
-
-			Pedido::modificarPedidoDB($pedido);
+			$pedido->modificarPedidoDB();
 		}else {
 			$mensaje = 'Acceso denegado o permisos insuficientes';
 		}
@@ -181,6 +180,31 @@ class PedidoController extends Pedido implements IApiUsable
 		$pedido = Pedido::obtenerPedido($codigoPedido);
 
 		$payload = json_encode($pedido);
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+	
+
+	public function verDemoraPedido($request, $response, $args)
+	{
+
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
+
+		$codigoPedido = $args['codigo'];
+		$pedido = Pedido::obtenerPedido($codigoPedido);
+		if ($pedido) {
+			unset($pedido->productosPedidos);
+			unset($pedido->idProducto);
+			unset($pedido->rutaImagen);
+			$payload = json_encode($pedido);
+		} else {
+			$payload = json_encode(array("mensaje" => "El pedido no existe"));
+		}
 
 		$response->getBody()->write($payload);
 		return $response
@@ -256,7 +280,26 @@ class PedidoController extends Pedido implements IApiUsable
 		if ($lista) {
 			$payload = json_encode(array("productosPendientes" => $lista));
 		}else {
-			$payload = json_encode(array("mensaje" => 'No hay pedidos pendientes'));
+			$payload = json_encode(array("mensaje" => 'No hay productos pendientes'));
+		}
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+
+	public function traerEnPreparacionPorRol($request, $response, $args)
+	{
+		$token = $request->getHeaderLine('Authorization');
+		$token = trim(explode("Bearer", $token)[1]);
+		$usuario = AutentificadorJWT::obtenerData($token);
+
+		$lista = ProductoPedido::obtenerProductosEnPreparacionPorRol($usuario->rol);
+		if ($lista) {
+			$payload = json_encode(array("productosPendientes" => $lista));
+		}else {
+			$payload = json_encode(array("mensaje" => 'No hay productos pendientes'));
 		}
 
 		$response->getBody()->write($payload);
@@ -275,7 +318,7 @@ class PedidoController extends Pedido implements IApiUsable
 		if ($lista) {
 			$payload = json_encode(array("productosPendientes" => $lista));
 		}else {
-			$payload = json_encode(array("mensaje" => 'No hay pedidos pendientes'));
+			$payload = json_encode(array("mensaje" => 'No hay productos pendientes'));
 		}
 
 		$response->getBody()->write($payload);
@@ -340,49 +383,57 @@ class PedidoController extends Pedido implements IApiUsable
 		$token = trim(explode("Bearer", $token)[1]);
 		$usuario = AutentificadorJWT::obtenerData($token);
 
-		$mensaje = 'Ha habido un error';
+		$mensaje = 'Ha ocurrido un error. Por favor revise los datos ingresados';
 		$parametros = $request->getParsedBody();
 
-		$codigoPedido = $parametros['codigo'];
-		$idProductoPedido = $parametros['idProductoPedido'];
-		$tiempoEstimado = $parametros['tiempoEstimado'];
+		$codigoPedido = isset($parametros['codigoPedido']) ? $parametros['codigoPedido'] : null;
+		$idProductoPedido = isset($parametros['idProductoPedido']) ? $parametros['idProductoPedido'] : null;
+		$tiempoEstimado = isset($parametros['tiempoEstimado']) ? $parametros['tiempoEstimado'] : null;
 
-		$productoPedido = ProductoPedido::obtenerProductoPedido($idProductoPedido);
-		$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
-		if ($usuario->rol == 'socio' || $productoPedido->producto->rolEncargado == $usuario->rol) {
-			$pedido = Pedido::obtenerPedidoDB($codigoPedido);
-
-			$estado_pedido = new Estado();
-			$estado_pedido->idEntidad = $pedido->id;
-			$estado_pedido->descripcion = STATUS_PEDIDO_EN_PREPARACION;
-			$estado_pedido->entidad = 'Pedido';
-			$estado_pedido->usuarioCreador = $usuario->nombre;
-			$estado_pedido->guardarEstado();
-
-			$estado_ped_prod = new Estado();
-			$estado_ped_prod->idEntidad = $idProductoPedido;
-			$estado_ped_prod->descripcion = STATUS_PEDIDO_EN_PREPARACION;
-			$estado_ped_prod->entidad = 'ProductoPedido';
-			$estado_ped_prod->usuarioCreador = $usuario->nombre;
-			$estado_ped_prod->guardarEstado();
-
-			$productoPedido->tiempoEstimado = $tiempoEstimado;
-			ProductoPedido::modificarProductoPedido($productoPedido);
-
-			$usuario = Usuario::obtenerUsuario($usuario->nombre);
-			$estado_ped_prod = new Estado();
-			$estado_ped_prod->idEntidad = $usuario->id;
-			$estado_ped_prod->descripcion = STATUS_USUARIO_OCUPADO;
-			$estado_ped_prod->entidad = 'Usuario';
-			$estado_ped_prod->usuarioCreador = $usuario->nombre;
-			$estado_ped_prod->guardarEstado();
-
-			$log = new Log();
-			$log->idUsuarioCreador = $usuario->id;
-			$log->descripcion = Log::obtenerDescripcionLogtomarPedido($pedido->codigo);
-			$log->guardarLog();
-
-			$mensaje = 'El pedido está ahora en preparación';
+		if ($codigoPedido && $idProductoPedido) {
+			$productoPedido = ProductoPedido::obtenerProductoPedido($idProductoPedido, $codigoPedido);
+			if ($productoPedido) {
+				$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
+				if ($productoPedido->producto) {
+					if ($usuario->rol == 'socio' || $productoPedido->producto->rolEncargado == $usuario->rol) {
+						$pedido = Pedido::obtenerPedidoDB($codigoPedido);
+			
+						$estado_pedido = new Estado();
+						$estado_pedido->idEntidad = $pedido->id;
+						$estado_pedido->descripcion = STATUS_PEDIDO_EN_PREPARACION;
+						$estado_pedido->entidad = 'Pedido';
+						$estado_pedido->usuarioCreador = $usuario->nombre;
+						$estado_pedido->guardarEstado();
+			
+						$estado_ped_prod = new Estado();
+						$estado_ped_prod->idEntidad = $idProductoPedido;
+						$estado_ped_prod->descripcion = STATUS_PEDIDO_EN_PREPARACION;
+						$estado_ped_prod->entidad = 'ProductoPedido';
+						$estado_ped_prod->usuarioCreador = $usuario->nombre;
+						$estado_ped_prod->guardarEstado();
+			
+						$productoPedido->tiempoEstimado = $tiempoEstimado;
+						ProductoPedido::modificarProductoPedido($productoPedido);
+			
+						$usuario = Usuario::obtenerUsuario($usuario->nombre);
+						$estado_ped_prod = new Estado();
+						$estado_ped_prod->idEntidad = $usuario->id;
+						$estado_ped_prod->descripcion = STATUS_USUARIO_OCUPADO;
+						$estado_ped_prod->entidad = 'Usuario';
+						$estado_ped_prod->usuarioCreador = $usuario->nombre;
+						$estado_ped_prod->guardarEstado();
+			
+						$log = new Log();
+						$log->idUsuarioCreador = $usuario->id;
+						$log->descripcion = Log::obtenerDescripcionLogTomarPedido($pedido->codigo);
+						$log->guardarLog();
+			
+						$mensaje = 'El pedido está ahora en preparación';
+					} else {
+						$mensaje = 'No tiene permiso para tomar este pedido';
+					}
+				}
+			}
 		}
 
 		$payload = json_encode(array("mensaje" => $mensaje));
@@ -404,7 +455,7 @@ class PedidoController extends Pedido implements IApiUsable
 		$codigoPedido = $parametros['codigo'];
 		$idProductoPedido = $parametros['idProductoPedido'];
 
-		$productoPedido = ProductoPedido::obtenerProductoPedido($idProductoPedido);
+		$productoPedido = ProductoPedido::obtenerProductoPedido($idProductoPedido, $codigoPedido);
 		$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
 		if ($usuario->rol == 'socio' || $productoPedido->producto->rolEncargado == $usuario->rol) {
 			if ($productoPedido->estado == STATUS_PEDIDO_EN_PREPARACION) {

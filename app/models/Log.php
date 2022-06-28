@@ -77,7 +77,7 @@ class Log
 		return 'Ha cargado un pedido';
 	}
 
-	public static function obtenerDescripcionLogtomarPedido($codPedido){
+	public static function obtenerDescripcionLogTomarPedido($codPedido){
 		return 'Ha tomado el pedido ' . $codPedido;
 	}
 

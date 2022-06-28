@@ -65,7 +65,7 @@ class ProductoPedido
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'ProductoPedido');
     }
 
-	public static function obtenerProductoPedido($idProductoPedido) {
+	public static function obtenerProductoPedido($idProductoPedido, $codigoPedido) {
 		$objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("
             SELECT PP.id, 
@@ -92,9 +92,11 @@ class ProductoPedido
 								AND EP2.fechaInsercion = EP.fechaInsercion
 				) E ON E.idProductoPedido = PP.id
             WHERE PP.id = :idProductoPedido
+				AND PS.codigo = :codigoPedido
 				AND PP.fechaBaja IS NULL
         ");
         $consulta->bindValue(':idProductoPedido', $idProductoPedido, PDO::PARAM_STR);
+		$consulta->bindValue(':codigoPedido', $codigoPedido, PDO::PARAM_STR);
         $consulta->execute();
 
         return $consulta->fetchObject('ProductoPedido');
@@ -171,6 +173,43 @@ class ProductoPedido
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'ProductoPedido');
 	}
 
+	public static function obtenerProductosEnPreparacionPorRolDB($rol) {
+		$objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("
+            SELECT PP.id, 
+                PS.codigo AS codigoPedido, 
+                PP.cantidad, 
+                PP.idProducto,
+                PR.nombre AS nombreProducto,
+				PP.tiempoEstimado,
+				E.descripcion AS estado
+            FROM productos_pedidos PP
+                JOIN productos PR ON PR.id = PP.idProducto
+				JOIN pedidos PS ON PS.id = PP.idPedido
+
+				LEFT JOIN ( -- Obtener el último estado
+					SELECT EP.idEntidad AS idProductoPedido, EP.descripcion
+					FROM estados_productos_pedidos EP
+						JOIN (
+							SELECT id, 
+								idEntidad AS idProductoPedido, 
+								MAX(fechaInsercion) AS fechaInsercion
+							FROM estados_productos_pedidos
+							GROUP BY idEntidad
+						) EP2 ON EP2.idProductoPedido = EP.idEntidad 
+								AND EP2.fechaInsercion = EP.fechaInsercion
+				) E ON E.idProductoPedido = PP.id
+            WHERE PP.fechaBaja IS NULL
+				AND E.descripcion = 'En preparación'
+				AND (PR.idRolEncargado = (SELECT id FROM roles WHERE descripcion = :rol1) OR :rol2 = 'socio')
+        ");
+        $consulta->bindValue(':rol1', $rol, PDO::PARAM_STR);
+        $consulta->bindValue(':rol2', $rol, PDO::PARAM_STR);
+        $consulta->execute();
+
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'ProductoPedido');
+	}
+
 
 	public static function obtenerProductosListosPorRolDB($rol) {
 		$objAccesoDatos = AccesoDatos::obtenerInstancia();
@@ -231,16 +270,34 @@ class ProductoPedido
         $consulta->execute();
     }
 
+	public function rellenarProductoPedido(){
+		$this->producto = Producto::obtenerProducto($this->idProducto);
+		if($this->producto->tiempoEstimado) {
+			$this->tiempoEstimado = $this->producto->tiempoEstimado;
+		}
+	}
+
 	public static function obtenerProductosPendientesPorRol($rol) {
 		$productosPendientes = ProductoPedido::obtenerProductosPendientesPorRolDB($rol);
 
 		if ($productosPendientes) {
 			foreach ($productosPendientes as $productoPedido) {
 				if ($productoPedido) {
-					$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
-					if($productoPedido->producto->tiempoEstimado) {
-						$productoPedido->tiempoEstimado = $productoPedido->producto->tiempoEstimado;
-					}
+					$productoPedido->rellenarProductoPedido();
+				}
+			}
+		}
+
+		return $productosPendientes;
+	}
+
+	public static function obtenerProductosEnPreparacionPorRol($rol) {
+		$productosPendientes = ProductoPedido::obtenerProductosEnPreparacionPorRolDB($rol);
+
+		if ($productosPendientes) {
+			foreach ($productosPendientes as $productoPedido) {
+				if ($productoPedido) {
+					$productoPedido->rellenarProductoPedido();
 				}
 			}
 		}
@@ -254,10 +311,7 @@ class ProductoPedido
 		if ($productosListos) {
 			foreach ($productosListos as $productoPedido) {
 				if ($productoPedido) {
-					$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
-					if($productoPedido->producto->tiempoEstimado) {
-						$productoPedido->tiempoEstimado = $productoPedido->producto->tiempoEstimado;
-					}
+					$productoPedido->rellenarProductoPedido();
 				}
 			}
 		}

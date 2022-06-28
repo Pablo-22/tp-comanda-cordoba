@@ -11,7 +11,7 @@ class Pedido
 	public $precioTotal;
 	public $estado;
 	public $tiempoEstimado;
-	public $tiempoFinal;
+	public $demoraReal;
 
     public function crearPedidoDB()
     {
@@ -49,8 +49,8 @@ class Pedido
 
 				TIMESTAMPDIFF(MINUTE, 
    					(EP.fechaInsercion),
-    				(EP2.fechaInsercion)
-				) AS tiempoFinal
+    				(IFNULL(EP2.fechaInsercion, NOW()))
+				) AS demoraReal
 
             FROM pedidos P
                 JOIN mesas R ON R.id = P.idMesa
@@ -91,8 +91,8 @@ class Pedido
 
 				TIMESTAMPDIFF(MINUTE, 
    					(EP.fechaInsercion),
-    				(EP2.fechaInsercion)
-				) AS tiempoFinal
+    				(IFNULL(EP2.fechaInsercion, NOW()))
+				) AS demoraReal
 			FROM pedidos P
                 JOIN mesas M ON M.id = P.idMesa
 
@@ -134,8 +134,8 @@ class Pedido
 
 				TIMESTAMPDIFF(MINUTE, 
    					(EP.fechaInsercion),
-    				(EP2.fechaInsercion)
-				) AS tiempoFinal
+    				(IFNULL(EP2.fechaInsercion, NOW()))
+				) AS demoraReal
 			FROM pedidos P
                 JOIN mesas M ON M.id = P.idMesa
 
@@ -176,8 +176,8 @@ class Pedido
 
 				TIMESTAMPDIFF(MINUTE, 
    					(EP.fechaInsercion),
-    				(EP2.fechaInsercion)
-				) AS tiempoFinal
+    				(IFNULL(EP2.fechaInsercion, NOW()))
+				) AS demoraReal
 			FROM pedidos P
 				JOIN mesas M ON M.id = P.idMesa
 			
@@ -204,23 +204,23 @@ class Pedido
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
     }
 
-    public static function modificarPedidoDB($pedido)
+    public function modificarPedidoDB()
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("
             UPDATE pedidos P
-				JOIN mesas M ON M.id = :codigoMesa
+				JOIN mesas M ON M.codigo = :codigoMesa
             SET P.codigo = :codigo, 
                 P.rutaImagen = :rutaImagen, 
                 P.idMesa = M.id,
                 P.nombreCliente = :nombreCliente
             WHERE P.id = :id
         ");
-        $consulta->bindValue(':codigo', $pedido->codigo, PDO::PARAM_STR);
-        $consulta->bindValue(':rutaImagen', $pedido->rutaImagen);
-        $consulta->bindValue(':codigoMesa', $pedido->codigoMesa, PDO::PARAM_STR);
-        $consulta->bindValue(':nombreCliente', $pedido->nombreCliente, PDO::PARAM_STR);
-        $consulta->bindValue(':id', $pedido->id, PDO::PARAM_INT);
+        $consulta->bindValue(':codigo', $this->codigo, PDO::PARAM_STR);
+        $consulta->bindValue(':rutaImagen', $this->rutaImagen);
+        $consulta->bindValue(':codigoMesa', $this->codigoMesa, PDO::PARAM_STR);
+        $consulta->bindValue(':nombreCliente', $this->nombreCliente, PDO::PARAM_STR);
+        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
         $consulta->execute();
     }
 
@@ -249,8 +249,8 @@ class Pedido
 
 				TIMESTAMPDIFF(MINUTE, 
    					(EP.fechaInsercion),
-					(EP2.fechaInsercion)
-				) AS tiempoFinal
+					(IFNULL(EP2.fechaInsercion, NOW()))
+				) AS demoraReal
 			FROM pedidos P
 				JOIN mesas M ON M.id = P.idMesa
 				LEFT JOIN ( -- Obtener el último estado de cada pedido
