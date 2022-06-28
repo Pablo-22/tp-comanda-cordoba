@@ -42,8 +42,13 @@ $app->group('/login', function (RouteCollectorProxy $group) {
 
 // USUARIOS
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
-    $group->get('[/]', \UsuarioController::class . ':traerTodos');
-    $group->get('/{nombre}', \UsuarioController::class . ':traerUno');
+    $group->get('[/]', \UsuarioController::class . ':traerTodos')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
+		
+    $group->get('/roles', \UsuarioController::class . ':traerRoles');
+
+    $group->get('/{nombre}', \UsuarioController::class . ':traerUno')
+		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
     $group->post('/cargarUno', \UsuarioController::class . ':cargarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');

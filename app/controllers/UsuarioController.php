@@ -1,5 +1,6 @@
 <?php
 require_once './models/Usuario.php';
+require_once './models/Rol.php';
 require_once './interfaces/IApiUsable.php';
 require_once './middlewares/AutentificadorJWT.php';
 
@@ -10,28 +11,39 @@ class UsuarioController extends Usuario implements IApiUsable
 		$mensaje = 'Ha habido un error';
 		$parametros = $request->getParsedBody();
 
-		$nombre = $parametros['nombre'];
-		$clave = $parametros['clave'];
-		$rol = $parametros['rol'];
-		$sector = $parametros['sector'];
+		$nombre = isset($parametros['nombre']) ? $parametros['nombre'] : null;
+		$clave = isset($parametros['clave']) ? $parametros['clave'] : null;
+		$rol = isset($parametros['rol']) ? $parametros['rol'] :  null;
+		$sector = $parametros['sector'] ?: '';
 
-		if (Usuario::obtenerUsuario($nombre)) {
-			$mensaje = 'Ya existe un usuario con ese nombre';
-		} else {
-			// Creamos el usuario
-			$usuario = new Usuario();
-			$usuario->nombre = $nombre;
-			$usuario->clave = $clave;
-			$usuario->rol = $rol;
-			$usuario->sector = $sector;
-			$idUsuario = $usuario->crearUsuario();
+		if ($nombre && $clave && $rol) {
+			if (Usuario::obtenerUsuario($nombre)) {
+				$mensaje = 'Ya existe un usuario con ese nombre';
+			} else {
+				// Creamos el usuario
+				$usuario = new Usuario();
+				$usuario->nombre = $nombre;
+				$usuario->clave = $clave;
+				$usuario->rol = $rol;
+				$usuario->sector = $sector;
+				$idUsuario = $usuario->crearUsuario();
+	
+				$estadoUsuario = new Estado();
+				$estadoUsuario->idEntidad = $idUsuario;
+				$estadoUsuario->Descripcion = STATUS_USUARIO_DEFAULT;
+				$estadoUsuario->usuarioCreador = $nombre;
+				$estadoUsuario->guardarEstado();
+	
+				$mensaje = 'Usuario creado con éxito';
+			}
+		}else {
+			$mensaje = 'Faltan parámetros';
+			$payload = json_encode(array("mensaje" => $mensaje));
 
-			$estadoUsuario = new Estado();
-			$estadoUsuario->idEntidad = $idUsuario;
-			$estadoUsuario->Descripcion = STATUS_USUARIO_DEFAULT;
-			$estadoUsuario->usuarioCreador = $nombre;
-
-			$mensaje = 'Usuario creado con éxito';
+			$response->getBody()->write($payload);
+			return $response
+				->withHeader('Content-Type', 'application/json')
+				->withStatus(400);
 		}
 
 		$payload = json_encode(array("mensaje" => $mensaje));
@@ -44,9 +56,16 @@ class UsuarioController extends Usuario implements IApiUsable
 	public function traerUno($request, $response, $args)
 	{
 		// Buscamos usuario por nombre
-		$usr = $args['nombre'];
-		$usuario = Usuario::obtenerUsuario($usr);
-		$payload = json_encode($usuario);
+		$usr = isset($args['nombre']) ? $args['nombre'] : null;
+		if ($usr) {
+			$usuario = Usuario::obtenerUsuario($usr);
+			$payload = json_encode($usuario);
+		} else {
+			$response->getBody()->write( json_encode(array("mensaje" => "Faltan parámetros")));
+			return $response
+				->withHeader('Content-Type', 'application/json')
+				->withStatus(400);
+		}
 
 		$response->getBody()->write($payload);
 		return $response
@@ -67,22 +86,28 @@ class UsuarioController extends Usuario implements IApiUsable
 	{
 		$parametros = $request->getParsedBody();
 
-		$nombre = $parametros['nombre'];
-		$clave = $parametros['clave'];
-		$rol = $parametros['rol'];
-		$sector = $parametros['sector'];
-		$id = $parametros['id'];
+		$nombre = isset($parametros['nombre']) ? $parametros['nombre'] : null;
+		$clave = isset($parametros['clave']) ? $parametros['clave'] : null;
+		$rol = isset($parametros['rol']) ? $parametros['rol'] :  null;
+		$sector = $parametros['sector'] ?: '';
+		$id = isset($parametros['id']) ? $parametros['id'] : null;
 
-		// Creamos el usuario
-		$usr = new Usuario();
-		$usr->nombre = $nombre;
-		$usr->clave = $clave;
-		$usr->rol = $rol;
-		$usr->sector = $sector;
-		$usr->id = $id;
+		if ($nombre && $clave && $rol && $id) {
+			// Creamos el usuario
+			$usr = new Usuario();
+			$usr->nombre = $nombre;
+			$usr->clave = $clave;
+			$usr->rol = $rol;
+			$usr->sector = $sector;
+			$usr->id = $id;
 
-		$usr->modificarUsuario();
-
+			$usr->modificarUsuario();
+		} else {
+			$response->getBody()->write( json_encode(array("mensaje" => "Faltan parámetros")));
+			return $response
+				->withHeader('Content-Type', 'application/json')
+				->withStatus(400);
+		}
 
 		$payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 
@@ -152,6 +177,16 @@ class UsuarioController extends Usuario implements IApiUsable
 		
 		
 		$payload = json_encode(array("listaOperaciones" => $operaciones));
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/json');
+	}
+
+	public function traerRoles($request, $response, $args)
+	{
+		$lista = Rol::obtenerRoles();
+		$payload = json_encode(array("listaRoles" => $lista));
 
 		$response->getBody()->write($payload);
 		return $response

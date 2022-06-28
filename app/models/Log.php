@@ -69,8 +69,8 @@ class Log
 		return 'Ha creado un pedido';
 	}
 
-	public static function obtenerDescripcionLogCargarProducto(){
-		return 'Ha cargado un producto';
+	public static function obtenerDescripcionLogCargarProducto($nombreProducto){
+		return 'Ha cargado el producto ' . $nombreProducto;
 	}
 
 	public static function obtenerDescripcionLogCargarPedido(){

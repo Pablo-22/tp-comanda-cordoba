@@ -9,7 +9,7 @@ class ProductoController extends Producto implements IApiUsable
 		$mensaje = 'Ha habido un error';
 		$token = $request->getHeaderLine('Authorization');
 		$token = trim(explode("Bearer", $token)[1]);
-		$nombre = AutentificadorJWT::obtenerData($token);
+		$usuario = AutentificadorJWT::obtenerData($token);
 
 
 		$parametros = $request->getParsedBody();
@@ -32,7 +32,7 @@ class ProductoController extends Producto implements IApiUsable
 
 			$log = new Log();
 			$log->idUsuarioCreador = $usuario->id;
-			$log->descripcion = Log::obtenerDescripcionLogCargarProducto();
+			$log->descripcion = Log::obtenerDescripcionLogCargarProducto($producto->nombre);
 			$log->guardarLog();
 
 			$mensaje = 'Producto creado con éxito';

@@ -28,6 +28,7 @@ class Usuario
         $consulta->bindValue(':nombreUsuario', $this->nombre, PDO::PARAM_STR);
         $consulta->bindValue(':clave', $claveHash);
         $consulta->bindValue(':rol', $this->rol, PDO::PARAM_STR);
+		$consulta->bindValue(':sector', $this->sector, PDO::PARAM_STR);
         $consulta->execute();
 
         return $objAccesoDatos->obtenerUltimoId();
@@ -116,6 +117,8 @@ class Usuario
         $consulta->bindValue(':rol', $this->rol, PDO::PARAM_STR);
         $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
         $consulta->execute();
+
+        return $objAccesoDatos->obtenerUltimoId();
     }
 
     public static function borrarUsuario($id)
@@ -128,5 +131,7 @@ class Usuario
         $consulta->bindValue(':id', $id, PDO::PARAM_INT);
         $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
         $consulta->execute();
+
+        return $objAccesoDatos->obtenerUltimoId();
     }
 }
