@@ -449,53 +449,56 @@ class PedidoController extends Pedido implements IApiUsable
 		$token = trim(explode("Bearer", $token)[1]);
 		$usuario = AutentificadorJWT::obtenerData($token);
 
-		$mensaje = 'Ha habido un error';
+		$mensaje = 'Ha habido un error. Por favor revise los datos ingresados';
 		$parametros = $request->getParsedBody();
 
 		$codigoPedido = $parametros['codigo'];
 		$idProductoPedido = $parametros['idProductoPedido'];
 
 		$productoPedido = ProductoPedido::obtenerProductoPedido($idProductoPedido, $codigoPedido);
-		$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
-		if ($usuario->rol == 'socio' || $productoPedido->producto->rolEncargado == $usuario->rol) {
-			if ($productoPedido->estado == STATUS_PEDIDO_EN_PREPARACION) {
+		if ($productoPedido) {
+			$productoPedido->producto = Producto::obtenerProducto($productoPedido->idProducto);
 
-				$estado_ped_prod = new Estado();
-				$estado_ped_prod->idEntidad = $idProductoPedido;
-				$estado_ped_prod->descripcion = STATUS_PRODUCTO_LISTO;
-				$estado_ped_prod->entidad = 'ProductoPedido';
-				$estado_ped_prod->usuarioCreador = $usuario->nombre;
-				$estado_ped_prod->guardarEstado();
+			if ($usuario->rol == 'socio' || ($productoPedido->producto && $productoPedido->producto->rolEncargado == $usuario->rol)) {
+				if ($productoPedido->estado == STATUS_PEDIDO_EN_PREPARACION) {
+
+					$estado_ped_prod = new Estado();
+					$estado_ped_prod->idEntidad = $idProductoPedido;
+					$estado_ped_prod->descripcion = STATUS_PRODUCTO_LISTO;
+					$estado_ped_prod->entidad = 'ProductoPedido';
+					$estado_ped_prod->usuarioCreador = $usuario->nombre;
+					$estado_ped_prod->guardarEstado();
 
 
-				$usuario = Usuario::obtenerUsuario($usuario->nombre);
-				$estado_usuario = new Estado();
-				$estado_usuario->idEntidad = $usuario->id;
-				$estado_usuario->descripcion = STATUS_USUARIO_DEFAULT;
-				$estado_usuario->entidad = 'Usuario';
-				$estado_usuario->usuarioCreador = $usuario->nombre;
-				$estado_usuario->guardarEstado();
+					$usuario = Usuario::obtenerUsuario($usuario->nombre);
+					$estado_usuario = new Estado();
+					$estado_usuario->idEntidad = $usuario->id;
+					$estado_usuario->descripcion = STATUS_USUARIO_DEFAULT;
+					$estado_usuario->entidad = 'Usuario';
+					$estado_usuario->usuarioCreador = $usuario->nombre;
+					$estado_usuario->guardarEstado();
 
-				$pedido = Pedido::obtenerPedido($codigoPedido);
+					$pedido = Pedido::obtenerPedido($codigoPedido);
 
-				if ($pedido->estaListo()) {
-					$estado_pedido = new Estado();
-					$estado_pedido->idEntidad = $pedido->id;
-					$estado_pedido->descripcion = STATUS_PEDIDO_LISTO_PARA_SERVIR;
-					$estado_pedido->entidad = 'Pedido';
-					$estado_pedido->usuarioCreador = $usuario->nombre;
-					$estado_pedido->guardarEstado();
+					if ($pedido->estaListo()) {
+						$estado_pedido = new Estado();
+						$estado_pedido->idEntidad = $pedido->id;
+						$estado_pedido->descripcion = STATUS_PEDIDO_LISTO_PARA_SERVIR;
+						$estado_pedido->entidad = 'Pedido';
+						$estado_pedido->usuarioCreador = $usuario->nombre;
+						$estado_pedido->guardarEstado();
 
-					$mensaje = 'Se completó el pedido ' . $pedido->codigo;
-				}
-				else {
-					$mensaje = 'Se completó la preparación del producto ' . $productoPedido->producto->nombre;
+						$mensaje = 'Se completó el pedido ' . $pedido->codigo;
+					}
+					else {
+						$mensaje = 'Se completó la preparación del producto ' . $productoPedido->producto->nombre;
+					}
+				} else {
+					$mensaje = 'El producto no está en preparación';
 				}
 			} else {
-				$mensaje = 'El producto no está en preparación';
+				$mensaje = 'Permisos insuficientes para terminar la preparación del producto';
 			}
-		} else {
-			$mensaje = 'Permisos insuficientes para terminar la preparación del producto';
 		}
 
 		$payload = json_encode(array("mensaje" => $mensaje));
