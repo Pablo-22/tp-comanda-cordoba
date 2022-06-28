@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 27-06-2022 a las 05:40:19
+-- Tiempo de generación: 28-06-2022 a las 05:20:17
 -- Versión del servidor: 10.4.24-MariaDB
 -- Versión de PHP: 8.0.19
 
@@ -88,7 +88,11 @@ INSERT INTO `estados_mesas` (`id`, `descripcion`, `idUsuarioCreador`, `idEntidad
 (34, 'Con cliente pagando pedido', 11, 25, '2022-06-26 22:53:45', NULL),
 (35, 'Cerrada', 11, 25, '2022-06-26 22:58:34', NULL),
 (36, 'Cerrada', 11, 24, '2022-06-26 22:58:49', NULL),
-(37, 'Cerrada', 11, 23, '2022-06-26 22:58:52', NULL);
+(37, 'Cerrada', 11, 23, '2022-06-26 22:58:52', NULL),
+(38, 'Con cliente esperando pedido', 11, 22, '2022-06-27 22:08:15', NULL),
+(39, 'Con cliente comiendo pedido', 11, 22, '2022-06-27 23:54:21', NULL),
+(40, 'Con cliente pagando pedido', 11, 22, '2022-06-27 23:58:31', NULL),
+(41, 'Cerrada', 11, 22, '2022-06-28 00:05:09', NULL);
 
 -- --------------------------------------------------------
 
@@ -136,7 +140,16 @@ INSERT INTO `estados_pedidos` (`id`, `descripcion`, `idUsuarioCreador`, `idEntid
 (60, 'En preparación', 11, 9, '2022-06-26 22:43:35', NULL),
 (61, 'Listo para servir', 11, 9, '2022-06-26 22:50:27', NULL),
 (62, 'Pedido entregado', 11, 9, '2022-06-26 22:51:32', NULL),
-(63, 'Pedido pagado', 11, 9, '2022-06-26 22:53:45', NULL);
+(63, 'Pedido pagado', 11, 9, '2022-06-26 22:53:45', NULL),
+(64, 'Pendiente', 11, 10, '2022-06-27 22:08:15', NULL),
+(65, 'En preparación', 14, 10, '2022-06-27 23:03:50', NULL),
+(66, 'En preparación', 13, 10, '2022-06-27 23:06:09', NULL),
+(67, 'En preparación', 13, 10, '2022-06-27 23:06:41', NULL),
+(68, 'En preparación', 11, 10, '2022-06-27 23:26:19', NULL),
+(69, 'Listo para servir', 12, 9, '2022-06-27 23:38:13', NULL),
+(70, 'Listo para servir', 11, 10, '2022-06-27 23:53:29', NULL),
+(71, 'Pedido entregado', 11, 10, '2022-06-27 23:54:21', NULL),
+(72, 'Pedido pagado', 11, 10, '2022-06-27 23:58:31', NULL);
 
 -- --------------------------------------------------------
 
@@ -187,7 +200,19 @@ INSERT INTO `estados_productos_pedidos` (`id`, `descripcion`, `idUsuarioCreador`
 (66, 'En preparación', 12, 18, '2022-06-26 19:43:50', NULL),
 (67, 'En preparación', 11, 17, '2022-06-26 22:43:35', NULL),
 (68, 'Listo', 11, 17, '2022-06-26 22:50:06', NULL),
-(69, 'Listo', 11, 18, '2022-06-26 22:50:27', NULL);
+(69, 'Listo', 11, 18, '2022-06-26 22:50:27', NULL),
+(70, 'Pendiente', 11, 19, '2022-06-27 22:08:15', NULL),
+(71, 'Pendiente', 11, 20, '2022-06-27 22:08:15', NULL),
+(72, 'Pendiente', 11, 21, '2022-06-27 22:08:15', NULL),
+(73, 'Pendiente', 11, 22, '2022-06-27 22:08:15', NULL),
+(74, 'En preparación', 14, 21, '2022-06-27 23:03:50', NULL),
+(75, 'En preparación', 13, 19, '2022-06-27 23:06:09', NULL),
+(76, 'En preparación', 13, 20, '2022-06-27 23:06:41', NULL),
+(77, 'En preparación', 11, 22, '2022-06-27 23:26:19', NULL),
+(78, 'Listo', 12, 22, '2022-06-27 23:38:13', NULL),
+(79, 'Listo', 11, 21, '2022-06-27 23:53:20', NULL),
+(80, 'Listo', 11, 19, '2022-06-27 23:53:25', NULL),
+(81, 'Listo', 11, 20, '2022-06-27 23:53:29', NULL);
 
 -- --------------------------------------------------------
 
@@ -244,7 +269,18 @@ INSERT INTO `estados_usuarios` (`id`, `descripcion`, `idUsuarioCreador`, `idEnti
 (33, 'Ocupado', 12, 12, '2022-06-26 19:43:50', NULL),
 (34, 'Ocupado', 11, 11, '2022-06-26 22:43:36', NULL),
 (35, 'Libre', 11, 11, '2022-06-26 22:50:06', NULL),
-(36, 'Libre', 11, 11, '2022-06-26 22:50:27', NULL);
+(36, 'Libre', 11, 11, '2022-06-26 22:50:27', NULL),
+(37, 'Libre', 12, 12, '2022-06-27 22:26:39', NULL),
+(39, 'Libre', 13, 13, '2022-06-27 22:28:31', NULL),
+(40, 'Libre', 14, 14, '2022-06-27 22:28:45', NULL),
+(41, 'Ocupado', 14, 14, '2022-06-27 23:03:50', NULL),
+(42, 'Ocupado', 13, 13, '2022-06-27 23:06:09', NULL),
+(43, 'Ocupado', 13, 13, '2022-06-27 23:06:41', NULL),
+(44, 'Ocupado', 11, 11, '2022-06-27 23:26:19', NULL),
+(45, 'Libre', 12, 12, '2022-06-27 23:38:13', NULL),
+(46, 'Libre', 11, 11, '2022-06-27 23:53:20', NULL),
+(47, 'Libre', 11, 11, '2022-06-27 23:53:25', NULL),
+(48, 'Libre', 11, 11, '2022-06-27 23:53:29', NULL);
 
 -- --------------------------------------------------------
 
@@ -254,7 +290,7 @@ INSERT INTO `estados_usuarios` (`id`, `descripcion`, `idUsuarioCreador`, `idEnti
 
 CREATE TABLE `logs` (
   `id` int(8) NOT NULL,
-  `descripcion` varchar(50) NOT NULL,
+  `descripcion` varchar(500) NOT NULL,
   `idUsuarioCreador` int(8) DEFAULT NULL,
   `fechaInsercion` datetime DEFAULT current_timestamp(),
   `fechaBaja` datetime DEFAULT NULL
@@ -286,7 +322,25 @@ INSERT INTO `logs` (`id`, `descripcion`, `idUsuarioCreador`, `fechaInsercion`, `
 (27, 'Ha tomado el pedido A0007', 11, '2022-06-26 22:43:36', NULL),
 (28, 'Ha iniciado sesión', 11, '2022-06-26 22:49:57', NULL),
 (29, 'Se ha cargado la encuesta relacionada al pedido ', 11, '2022-06-26 23:49:28', NULL),
-(30, 'Se ha cargado la encuesta relacionada al pedido A0', 11, '2022-06-26 23:49:50', NULL);
+(31, 'Ha iniciado sesión', 11, '2022-06-27 21:57:10', NULL),
+(33, 'Ha cargado el producto Milanesa a caballo', 11, '2022-06-27 22:01:56', NULL),
+(34, 'Ha cargado el producto Hamburguesa de garbanzo', 11, '2022-06-27 22:03:13', NULL),
+(35, 'Ha cargado el producto Daikiri', 11, '2022-06-27 22:03:52', NULL),
+(36, 'Ha creado un pedido', 11, '2022-06-27 22:08:15', NULL),
+(37, 'Ha creado un pedido', 11, '2022-06-27 22:10:06', NULL),
+(38, 'Ha iniciado sesión', 12, '2022-06-27 22:49:10', NULL),
+(39, 'Ha iniciado sesión', 13, '2022-06-27 22:49:58', NULL),
+(40, 'Ha iniciado sesión', 14, '2022-06-27 22:50:25', NULL),
+(41, 'Ha tomado el pedido A0008', 14, '2022-06-27 23:03:50', NULL),
+(42, 'Ha iniciado sesión', 13, '2022-06-27 23:04:04', NULL),
+(43, 'Ha tomado el pedido A0008', 13, '2022-06-27 23:06:09', NULL),
+(44, 'Ha tomado el pedido A0008', 13, '2022-06-27 23:06:41', NULL),
+(45, 'Ha iniciado sesión', 12, '2022-06-27 23:06:55', NULL),
+(46, 'Ha creado un pedido', 11, '2022-06-27 23:16:56', NULL),
+(47, 'Ha iniciado sesión', 11, '2022-06-27 23:24:49', NULL),
+(48, 'Ha tomado el pedido A0008', 11, '2022-06-27 23:26:19', NULL),
+(49, 'Ha iniciado sesión', 12, '2022-06-27 23:34:19', NULL),
+(50, 'Ha iniciado sesión', 11, '2022-06-27 23:51:33', NULL);
 
 -- --------------------------------------------------------
 
@@ -343,7 +397,8 @@ INSERT INTO `pedidos` (`id`, `codigo`, `fechaInsercion`, `idMesa`, `nombreClient
 (6, 'A0006', '2022-06-26 15:00:01', 25, 'Juan', '..\\ImagenesPedidos\\A0006.png', '2022-06-27 00:00:00'),
 (7, 'A0006', '2022-06-26 16:02:23', 25, 'Pepe', '..\\ImagenesPedidos\\A0006.png', '2022-06-27 00:00:00'),
 (8, 'A0006', '2022-06-26 16:07:31', 25, 'Pepe', '..\\ImagenesPedidos\\A0006.png', '2022-06-27 00:00:00'),
-(9, 'A0007', '2022-06-26 16:08:10', 25, 'Pepe', '..\\ImagenesPedidos\\A0007.png', NULL);
+(9, 'A0007', '2022-06-26 16:08:10', 25, 'Pepe', '..\\ImagenesPedidos\\A0007.png', NULL),
+(10, 'A0008', '2022-06-27 22:08:15', 22, 'Luis', '..\\ImagenesPedidos\\A0008.png', NULL);
 
 -- --------------------------------------------------------
 
@@ -368,8 +423,11 @@ CREATE TABLE `productos` (
 INSERT INTO `productos` (`id`, `nombre`, `tiempoEstimado`, `fechaInsercion`, `precio`, `idRolEncargado`, `fechaBaja`) VALUES
 (3, 'Doble CheeseBurguer', '15', '2022-06-18 17:42:08', 1100, 6, NULL),
 (4, 'Nuggets x5', '10', '2022-06-18 17:44:05', 600, 6, NULL),
-(5, 'Cerveza Corona', '1', '2022-06-18 17:44:42', 230, 3, NULL),
-(6, 'Agua mineral sin gas', '1', '2022-06-18 17:44:56', 150, 3, NULL);
+(5, 'Cerveza Corona', '1', '2022-06-18 17:44:42', 250, 5, NULL),
+(6, 'Agua mineral sin gas', '1', '2022-06-18 17:44:56', 150, 3, NULL),
+(8, 'Milanesa a caballo', '18', '2022-06-27 22:01:56', 980, 6, NULL),
+(9, 'Hamburguesa de garbanzo', '15', '2022-06-27 22:03:13', 860, 6, NULL),
+(10, 'Daikiri', '5', '2022-06-27 22:03:52', 450, 3, NULL);
 
 -- --------------------------------------------------------
 
@@ -405,7 +463,11 @@ INSERT INTO `productos_pedidos` (`id`, `idPedido`, `idProducto`, `cantidad`, `ti
 (15, 6, 3, 2, NULL, '2022-06-26 16:07:31', '2022-06-27 00:00:00'),
 (16, 6, 6, 2, NULL, '2022-06-26 16:07:31', '2022-06-27 00:00:00'),
 (17, 9, 3, 2, 8, '2022-06-26 16:08:10', NULL),
-(18, 9, 6, 2, 5, '2022-06-26 16:08:10', NULL);
+(18, 9, 6, 2, 5, '2022-06-26 16:08:10', NULL),
+(19, 10, 8, 1, 15, '2022-06-27 22:08:15', NULL),
+(20, 10, 9, 2, 15, '2022-06-27 22:08:15', NULL),
+(21, 10, 5, 1, 8, '2022-06-27 22:08:15', NULL),
+(22, 10, 10, 1, 3, '2022-06-27 22:08:15', NULL);
 
 -- --------------------------------------------------------
 
@@ -453,7 +515,11 @@ CREATE TABLE `usuarios` (
 
 INSERT INTO `usuarios` (`id`, `nombre`, `clave`, `idRol`, `sector`, `fechaInsercion`, `fechaBaja`) VALUES
 (11, 'Pablo', '$2y$10$H2qOs36wSWXwEblmNjkDh.4xFksj04tMxSagW0riG1f4QA98T7/L2', 1, NULL, '2022-06-12 18:43:26', NULL),
-(12, 'Juan', '$2y$10$UWOOzqCI240AHTISXwSMKOLw2iuvhblllH9inGCJe83LAxqBqlfUG', 3, NULL, '2022-06-14 19:51:44', NULL);
+(12, 'Juan', '$2y$10$UWOOzqCI240AHTISXwSMKOLw2iuvhblllH9inGCJe83LAxqBqlfUG', 3, NULL, '2022-06-14 19:51:44', NULL),
+(13, 'Rocío', '$2y$10$h0hy3ltYt0QYgzssTNVF9.4B1KBZ5Prp8XC3TvFZ6xMvMoo0tuSqa', 6, 'cocina', '2022-06-27 22:19:59', NULL),
+(14, 'Ramiro', '$2y$10$l4UjsVO6wH22kND2duN1YeDJIyW.m2rcG0cNalwVunS5mpejofspO', 5, 'barra de choperas', '2022-06-27 22:20:37', NULL),
+(15, 'Eliana', '$2y$10$EmQsBFTWZiFfVTjwbRv7ruIg2xsKKamPrk4VeNEe4Lb9pMXOea8ai', 4, '', '2022-06-27 22:31:34', NULL),
+(16, 'Pedro', '$2y$10$/HpQWhMXa069XsvfyKrU5O72RIFXKPlImCPucF9qfLz1/w/s5L5Lq', 4, '', '2022-06-27 22:32:58', NULL);
 
 --
 -- Índices para tablas volcadas
@@ -545,31 +611,31 @@ ALTER TABLE `encuestas`
 -- AUTO_INCREMENT de la tabla `estados_mesas`
 --
 ALTER TABLE `estados_mesas`
-  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT de la tabla `estados_pedidos`
 --
 ALTER TABLE `estados_pedidos`
-  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- AUTO_INCREMENT de la tabla `estados_productos_pedidos`
 --
 ALTER TABLE `estados_productos_pedidos`
-  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
 
 --
 -- AUTO_INCREMENT de la tabla `estados_usuarios`
 --
 ALTER TABLE `estados_usuarios`
-  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT de la tabla `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT de la tabla `mesas`
@@ -581,19 +647,19 @@ ALTER TABLE `mesas`
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `productos_pedidos`
 --
 ALTER TABLE `productos_pedidos`
-  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
@@ -605,5 +671,5 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 COMMIT;
