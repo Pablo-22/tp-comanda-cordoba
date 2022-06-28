@@ -26,7 +26,7 @@ class PedidoController extends Pedido implements IApiUsable
 			$mensaje = 'El código de pedido ya existe';
 		} else {
 			$mesa = Mesa::obtenerMesa($codigoMesa);
-			if ($mesa) {
+			if ($mesa && ($mesa->estado == STATUS_MESA_CERRADA || $mesa->estado == STATUS_MESA_DEFAULT)) {
 				$pedido = new Pedido();
 				$pedido->codigo = $codigo;
 				$pedido->codigoMesa = $codigoMesa;
@@ -67,7 +67,7 @@ class PedidoController extends Pedido implements IApiUsable
 				$log->descripcion = Log::obtenerDescripcionLogCrearPedido();
 				$log->guardarLog();
 			} else {
-				$mensaje = 'La mesa no existe';
+				$mensaje = 'La mesa no está disponible o no existe';
 			}
 		}
 			
@@ -83,10 +83,6 @@ class PedidoController extends Pedido implements IApiUsable
 	{
 		$parametros = $request->getParsedBody();
 		$mensaje = 'Ha habido un error';
-		
-		$token = $request->getHeaderLine('Authorization');
-		$token = trim(explode("Bearer", $token)[1]);
-		$usuario = AutentificadorJWT::obtenerData($token);
 
 		$codigoPedido = $parametros['codigoPedido'];
 		$codigoMesa = $parametros['codigoMesa'];
@@ -118,7 +114,7 @@ class PedidoController extends Pedido implements IApiUsable
 					$mensaje = 'Encuesta creada con éxito';
 					
 					$log = new Log();
-					$log->idUsuarioCreador = $usuario->id;
+					$log->idUsuarioCreador = -1;
 					$log->descripcion = Log::obtenerDescripcionLogCargarEncuesta($codigoPedido);
 					$log->guardarLog();
 				}
@@ -190,11 +186,6 @@ class PedidoController extends Pedido implements IApiUsable
 
 	public function verDemoraPedido($request, $response, $args)
 	{
-
-		$token = $request->getHeaderLine('Authorization');
-		$token = trim(explode("Bearer", $token)[1]);
-		$nombreUsuario = AutentificadorJWT::obtenerData($token)->nombre;
-
 		$codigoPedido = $args['codigo'];
 		$pedido = Pedido::obtenerPedido($codigoPedido);
 		if ($pedido) {
