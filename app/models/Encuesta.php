@@ -224,7 +224,6 @@ class Encuesta
 	public static function ObtenerMejoresComentarios(){
 		$puntaje = Encuesta::ObtenerMejorPuntaje()['puntaje'];
 
-		var_dump($puntaje);
 		$encuestas = Encuesta::obtenerEncuestasPorPuntajeDB($puntaje);
 		foreach ($encuestas as $encuesta) {
 			if ($encuesta) {

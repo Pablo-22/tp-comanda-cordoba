@@ -139,7 +139,6 @@ class Producto
 
 		
 		foreach ($productos as $producto) {
-			var_dump($producto);
 			$consulta->bindValue(':nombreProducto', $producto->nombre, PDO::PARAM_STR);
 			$consulta->bindValue(':tiempoEstimado', $producto->tiempoEstimado);
 			$consulta->bindValue(':precio', $producto->precio);
