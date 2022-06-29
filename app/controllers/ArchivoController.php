@@ -122,7 +122,6 @@ class ArchivoController {
 
 
 	public static function CsvToArray($csvStr) {
-		echo $csvStr;
 		$finalArray = array();
 		if ($csvStr) {
 			$finalArray = explode(PHP_EOL, $csvStr);
@@ -139,7 +138,7 @@ class ArchivoController {
 
 	public static function ReadCsv($path){
 		$rawCsv = ArchivoController::LeerArchivo($path);
-		var_dump($rawCsv);
+		//var_dump($rawCsv);
 		$outputArray = ArchivoController::CsvToArray($rawCsv);
 
 		return $outputArray;

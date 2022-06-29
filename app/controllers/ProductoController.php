@@ -120,6 +120,7 @@ class ProductoController extends Producto implements IApiUsable
 		$mensaje = ArchivoController::guardarArchivo($path, true, 500000, ['.csv']);
 
 		$data = ArchivoController::ReadCsv($path);
+		//var_dump($data);
 
 		$arrayProductos = array();
 
@@ -133,6 +134,8 @@ class ProductoController extends Producto implements IApiUsable
 			array_push($arrayProductos, $prd);
 		}
 
+		//var_dump($arrayProductos);
+
 		Producto::crearProductosDB($arrayProductos);
 
 		$payload = json_encode(array("mensaje" => $mensaje));
@@ -140,5 +143,38 @@ class ProductoController extends Producto implements IApiUsable
 		$response->getBody()->write($payload);
 		return $response
 			->withHeader('Content-Type', 'application/json');
+	}
+
+
+	public function descargarCSV($request, $response, $args)
+	{
+		$nombreArchivo = 'productos.csv';
+		$lista = Producto::obtenerTodos();
+		$listaCsv = ArchivoController::ToCsv($lista);
+		//var_dump($listaCsv);
+
+		//$f = fopen('php://output', 'w'); 
+		//fwrite($f, $listaCsv);
+
+		$payload = $listaCsv;
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'text/csv')
+			->withHeader('Content-Disposition', 'attachment; filename="'.$nombreArchivo.'";');
+	}
+
+	public function descargarPDF($request, $response, $args)
+	{
+		$nombreArchivo = 'productos.pdf';
+		$lista = Producto::obtenerTodos();
+		$listaCsv = ArchivoController::ToCsv($lista);
+
+		$payload = $listaCsv;
+
+		$response->getBody()->write($payload);
+		return $response
+			->withHeader('Content-Type', 'application/pdf')
+			->withHeader('Content-Disposition', 'attachment; filename="'.$nombreArchivo.'";');
 	}
 }

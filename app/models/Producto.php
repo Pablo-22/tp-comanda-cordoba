@@ -133,7 +133,6 @@ class Producto
                 R.id AS idRolEncargado
             FROM roles R
             WHERE R.descripcion = :rolEncargado
-				AND P.fechaBaja IS NULL
 			LIMIT 1
         ");
 

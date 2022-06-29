@@ -66,13 +66,14 @@ $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->get('[/]', \ProductoController::class . ':traerTodos');
     $group->get('/{nombre}', \ProductoController::class . ':traerUno');
 
+
     $group->post('/cargarUno', \ProductoController::class . ':cargarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
 	$group->post('/modificarUno', \ProductoController::class . ':modificarUno')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
-	$group->post('/ImportarCSV', \ProductoController::class . ':ImportarCSV')
+	$group->post('/importarCSV', \ProductoController::class . ':ImportarCSV')
 		->add(\ControlDeAcceso::class . ':VerificarPermisoSocio');
 
     $group->post('/borrarUno', \ProductoController::class . ':borrarUno')
@@ -128,6 +129,8 @@ $app->group('/mesas', function (RouteCollectorProxy $group) {
 
 $app->group('/cliente', function (RouteCollectorProxy $group) {
     $group->post('/cargarUno', \PedidoController::class . ':cargarEncuesta');
+    $group->get('/descargarCSV', \ProductoController::class . ':descargarCSV');
+    $group->get('/descargarPDF', \ProductoController::class . ':descargarPDF');
     $group->get('/tiempo/{codigo}', \PedidoController::class . ':verDemoraPedido');
 });
 
